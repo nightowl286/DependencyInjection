@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>TNO.$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>TNO.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Nightowl</Authors>
+    <Company>TNO</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Explanations\TypeExplanation.cs~RF37b191.TMP" />
+    <None Include="Explanations\TypeExplanation.cs~RF87fada.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
+    <PackageReference Include="TNO.Common" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DependencyInjection.Abstractions\DependencyInjection.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
