@@ -19,7 +19,6 @@ namespace TNO.DependencyInjection.Tests
    public interface IGenericInterfaceForClass<T> { }
 
    #region Building
-
    public class ClassWithOutParameterType
    {
       public ClassWithOutParameterType(out Class value) => value = new Class();
@@ -44,7 +43,5 @@ namespace TNO.DependencyInjection.Tests
    {
       public ClassWithEnumerableParameterType(Class[] instances) { }
    }
-
-
    #endregion
 }
