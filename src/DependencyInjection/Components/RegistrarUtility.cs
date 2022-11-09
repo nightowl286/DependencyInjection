@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using TNO.Common.Extensions;
+﻿using TNO.Common.Extensions;
 
 namespace TNO.DependencyInjection.Components
 {
@@ -9,13 +8,13 @@ namespace TNO.DependencyInjection.Components
       public static void CheckTypeImplementation(Type serviceType, Type concreteType, bool mustImplement)
       {
          if (!concreteType.CanCreateInstance(true))
-            ThrowHelper.ThrowArgumentException(nameof(concreteType), $"The given concrete type ({concreteType}) cannot be used to create an instance.");
+            throw new ArgumentException($"The given concrete type ({concreteType}) cannot be used to create an instance.", nameof(concreteType));
 
          if ((serviceType.IsGenericTypeDefinition && !concreteType.IsGenericTypeDefinition) && mustImplement)
-            ThrowHelper.ThrowArgumentException(nameof(concreteType), $"The given concrete type ({concreteType}) must be a generic definition if the given service type ({serviceType}) is a generic definition.");
+            throw new ArgumentException($"The given concrete type ({concreteType}) must be a generic definition if the given service type ({serviceType}) is a generic definition.", nameof(concreteType));
 
          if (!ImplementsType(concreteType, serviceType) && mustImplement)
-            ThrowHelper.ThrowArgumentException(nameof(concreteType), $"The given concrete type ({concreteType}) does not implement the service type ({serviceType}).");
+            throw new ArgumentException($"The given concrete type ({concreteType}) does not implement the service type ({serviceType}).", nameof(concreteType));
       }
       public static bool ImplementsType(Type concrete, Type service) => concrete.IsAssignableTo(service) || concrete.ImplementsOpenInterface(service);
       #endregion

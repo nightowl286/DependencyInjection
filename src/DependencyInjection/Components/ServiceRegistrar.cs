@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using TNO.DependencyInjection.Abstractions;
+﻿using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Components.Registration;
 
@@ -23,7 +22,8 @@ namespace TNO.DependencyInjection.Components
       #region Methods
       public IServiceRegistrar Instance(Type serviceType, object instance, RegistrationMode? mode = null)
       {
-         Guard.IsAssignableToType(instance, serviceType);
+         if (!serviceType.IsAssignableFrom(instance.GetType()))
+            throw new ArgumentException($"The type of the given instance ({instance.GetType()}) cannot be assigned to the given service type ({serviceType}).");
 
          InstanceRegistration registration = new InstanceRegistration(instance);
          _context.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);

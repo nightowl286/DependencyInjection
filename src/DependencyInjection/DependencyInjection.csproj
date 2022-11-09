@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -10,15 +10,16 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Nightowl</Authors>
     <Company>TNO</Company>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Title>Dependency Injection</Title>
+    <Description>A library that provides the functionality needed for dependency injection.</Description>
+    <PackageTags>DI, dependency injection</PackageTags>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="Explanations\TypeExplanation.cs~RF37b191.TMP" />
-    <None Include="Explanations\TypeExplanation.cs~RF87fada.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
     <PackageReference Include="TNO.Common" Version="1.0.0" />
   </ItemGroup>
 

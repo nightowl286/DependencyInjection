@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
@@ -39,10 +38,10 @@ namespace TNO.DependencyInjection.Components
          }
          catch (Exception innerException)
          {
-            ThrowHelper.ThrowArgumentException(nameof(type), $"Could not get the instance associated with the given type ({type}), check inner exception for more information.", innerException);
+            throw new ArgumentException($"Could not get the instance associated with the given type ({type}), check inner exception for more information.", nameof(type), innerException);
          }
 
-         return ThrowHelper.ThrowArgumentException<object>(nameof(type), $"Could not get the instance associated with the given type ({type}) as it has not been registered.");
+         throw new ArgumentException($"Could not get the instance associated with the given type ({type}) as it has not been registered.", nameof(type));
       }
       private object Get(Type type, RegistrationBase registration)
       {
@@ -71,7 +70,7 @@ namespace TNO.DependencyInjection.Components
          else if (registration is PerRequestRegistration perRequest)
             return Build(type, perRequest.Type);
 
-         return ThrowHelper.ThrowNotSupportedException<object>($"Unknown registration type ({registration.GetType()}).");
+         throw new NotSupportedException($"Unknown registration type ({registration.GetType()}).");
       }
       public IEnumerable<object> GetAll(Type type)
       {
@@ -105,7 +104,7 @@ namespace TNO.DependencyInjection.Components
                _ => new AggregateException(aggregates)
             };
 
-            ThrowHelper.ThrowArgumentException(nameof(type), $"Could not get all instances of the given type ({type}), check inner exception for more information.", innerException);
+            throw new ArgumentException($"Could not get all instances of the given type ({type}), check inner exception for more information.", nameof(type), innerException);
          }
 
          if (_context.OuterContext is not null)
@@ -138,7 +137,7 @@ namespace TNO.DependencyInjection.Components
       private static void CheckRequestedType(Type type)
       {
          if (type.IsGenericTypeDefinition)
-            ThrowHelper.ThrowArgumentException(nameof(type), $"Could not get an instance of the given type ({type}) because it is a generic type definition.");
+            throw new ArgumentException($"Could not get an instance of the given type ({type}) because it is a generic type definition.", nameof(type));
       }
       private object Build(Type requestedType, Type concreteType)
       {
@@ -155,7 +154,7 @@ namespace TNO.DependencyInjection.Components
          catch (Exception innerException)
          {
             if (type != concreteType) // generic type was being built
-               return ThrowHelper.ThrowArgumentException<object>(nameof(concreteType), $"Failed to build a constructed generic type for the given type ({concreteType}), check inner exception for more information", innerException);
+               throw new ArgumentException($"Failed to build a constructed generic type for the given type ({concreteType}), check inner exception for more information", nameof(concreteType), innerException);
 
             throw;
          }

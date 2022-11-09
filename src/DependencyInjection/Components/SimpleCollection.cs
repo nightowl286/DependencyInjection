@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Abstractions.Explanations;
 using TNO.DependencyInjection.Components.Registration;
@@ -28,7 +27,8 @@ namespace TNO.DependencyInjection.Components
       #region Instance
       public void Instance(Type serviceType, object instance, ReplaceMode mode = DefaultReplaceMode)
       {
-         if (_mustImplementServiceType) Guard.IsAssignableToType(instance, serviceType);
+         if (_mustImplementServiceType && !serviceType.IsAssignableFrom(instance.GetType()))
+            throw new ArgumentException($"The type of the given instance ({instance.GetType()}) cannot be assigned to the given service type ({serviceType}).");
 
          CheckRegistration(serviceType, mode);
 
@@ -84,7 +84,7 @@ namespace TNO.DependencyInjection.Components
          object? instance = GetOptional(serviceType);
 
          if (instance is null)
-            return ThrowHelper.ThrowArgumentException<object>(nameof(serviceType), $"The service type {serviceType} has not been registered.");
+            throw new ArgumentException($"The service type {serviceType} has not been registered.", nameof(serviceType));
 
          return instance;
       }
@@ -106,7 +106,7 @@ namespace TNO.DependencyInjection.Components
             if (registration is PerRequestRegistration perRequest)
                return _builder.Build(perRequest.Type);
 
-            ThrowHelper.ThrowNotSupportedException($"The registration ({registration}) is not supported.");
+            throw new NotSupportedException($"The registration ({registration}) is not supported.");
          }
 
          return _outerScope?.GetOptional(serviceType);
@@ -156,7 +156,7 @@ namespace TNO.DependencyInjection.Components
       }
 
       [DoesNotReturn]
-      private static void ThrowTypeRegistered(Type serviceType) => ThrowHelper.ThrowArgumentException(nameof(serviceType), $"The service type ({serviceType}) has already been registered.");
+      private static void ThrowTypeRegistered(Type serviceType) => throw new ArgumentException($"The service type ({serviceType}) has already been registered.", nameof(serviceType));
       #endregion
    }
 }
