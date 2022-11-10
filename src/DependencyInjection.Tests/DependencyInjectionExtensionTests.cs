@@ -1,7 +1,6 @@
 ﻿using Moq;
 using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
-using TNO.Tests.Moq.Extensions;
 
 namespace TNO.DependencyInjection.Tests
 {

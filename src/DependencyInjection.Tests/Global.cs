@@ -1,5 +1,6 @@
 global using Microsoft.VisualStudio.TestTools.UnitTesting;
-global using TNO.Tests.Common.Extensions;
+global using TNO.Tests.Common;
+global using TNO.Tests.Moq;
 
 #if DEBUG
 [assembly: Parallelize(Scope = ExecutionScope.ClassLevel, Workers = 1)]

@@ -3,13 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 using TNO.Common;
 using TNO.DependencyInjection.Abstractions;
 using TNO.Common.Extensions;
+using TNO.Common.Disposable;
 
 namespace TNO.DependencyInjection
 {
-   public class TypeCollectionStore<T> : IDisposable where T : notnull
+   public class TypeCollectionStore<T> : DisposableBase where T : notnull
    {
       #region Fields
-      [TestOnly]
+      [TestOnly(AccessModifiers.Private)]
       internal readonly Dictionary<Type, List<T>> _store = new Dictionary<Type, List<T>>();
       #endregion
 
@@ -23,7 +24,7 @@ namespace TNO.DependencyInjection
             _store.Add(type, collection);
          }
 
-         if ((registrationMode == RegistrationMode.ReplaceLatest && collection.Count > 0) 
+         if ((registrationMode == RegistrationMode.ReplaceLatest && collection.Count > 0)
             || (registrationMode == RegistrationMode.ReplaceAll && collection.Count == 1))
          {
             collection[^1].TryDispose();
@@ -64,7 +65,8 @@ namespace TNO.DependencyInjection
          return false;
       }
 
-      public void Dispose()
+      /// <inheritdoc/>
+      protected override void DisposeManaged()
       {
          foreach (List<T> collection in _store.Values)
          {
