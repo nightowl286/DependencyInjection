@@ -25,11 +25,11 @@ namespace TNO.DependencyInjection.Tests
    }
    public class ClassWithStructParameterType
    {
-      public ClassWithStructParameterType(Struct value) { }
+      public ClassWithStructParameterType(Struct _) { }
    }
    public class ClassWithValidParameterType
    {
-      public ClassWithValidParameterType(Class value) { }
+      public ClassWithValidParameterType(Class _) { }
    }
    public class ClassWithNoPublicConstructor
    {
@@ -37,11 +37,11 @@ namespace TNO.DependencyInjection.Tests
    }
    public class ClassWithValidNullableParameterType
    {
-      public ClassWithValidNullableParameterType([AllowNull] Class value) { }
+      public ClassWithValidNullableParameterType([AllowNull] Class _) { }
    }
    public class ClassWithEnumerableParameterType
    {
-      public ClassWithEnumerableParameterType(Class[] instances) { }
+      public ClassWithEnumerableParameterType(Class[] _) { }
    }
    #endregion
 }
