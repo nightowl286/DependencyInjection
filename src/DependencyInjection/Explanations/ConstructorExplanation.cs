@@ -4,9 +4,11 @@ using TNO.DependencyInjection.Abstractions.Explanations;
 
 namespace TNO.DependencyInjection.Explanation
 {
+   /// <inheritdoc/>
    public sealed record ConstructorExplanation(ConstructorInfo Constructor, string Explanation, IReadOnlyCollection<IParameterExplanation> ParameterExplanations) : IConstructorExplanation
    {
       #region Methods
+      /// <inheritdoc/>
       public ConstructorException ToException()
       {
          if (ParameterExplanations.Count > 0)

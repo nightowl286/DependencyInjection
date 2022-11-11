@@ -3,9 +3,11 @@ using TNO.DependencyInjection.Abstractions.Explanations;
 
 namespace TNO.DependencyInjection.Explanation
 {
+   /// <inheritdoc/>
    public sealed record TypeExplanation(Type Type, string Explanation, IReadOnlyCollection<IConstructorExplanation> ConstructorExplanations) : ITypeExplanation
    {
       #region Methods
+      /// <inheritdoc/>
       public TypeException ToException()
       {
          if (ConstructorExplanations.Count > 0)
