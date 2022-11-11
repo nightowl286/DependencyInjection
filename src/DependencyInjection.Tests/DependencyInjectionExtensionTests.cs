@@ -499,7 +499,7 @@ namespace TNO.DependencyInjection.Tests
          // Act
          IEnumerable<Class> instances = DependencyInjectionExtensions.GetAll<Class>(requesterMock.Object);
 
-         // Pre Assert
+         // Pre-Assert
          Class[] array = instances.ToArray();
 
          // Assert

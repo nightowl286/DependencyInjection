@@ -23,7 +23,7 @@ namespace TNO.DependencyInjection.Abstractions.Components
       object? GetOptional(Type type);
 
       /// <summary>Requests all the instances registered for the given <paramref name="type"/>.</summary>
-      /// <param name="type">The type of the service to request.</param>
+      /// <param name="type">The type of the services to request.</param>
       /// <returns>A collection of the registered instances.</returns>
       IEnumerable<object> GetAll(Type type);
       object IServiceProvider.GetService(Type serviceType) => Get(serviceType);
