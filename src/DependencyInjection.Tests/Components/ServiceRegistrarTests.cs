@@ -40,7 +40,7 @@ namespace TNO.DependencyInjection.Tests.Components
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
       [TestCategory(nameof(IServiceRegistrar.Instance))]
-      public void Instance_ValidType_WithRegistrationMode_AddsCorrectRegistration(RegistrationMode registrationMode)
+      public void Instance_ValidType_WithRegistrationMode_AddsCorrectRegistration(AppendValueMode registrationMode)
       {
          // Arrange
          object instance = new object();
@@ -118,7 +118,7 @@ namespace TNO.DependencyInjection.Tests.Components
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
       [TestCategory(nameof(IServiceRegistrar.PerRequest))]
-      public void PerRequest_ValidType_WithRegistrationMode_AddsCorrectRegistration(RegistrationMode registrationMode)
+      public void PerRequest_ValidType_WithRegistrationMode_AddsCorrectRegistration(AppendValueMode registrationMode)
       {
          // Arrange
          Type type = typeof(object);
@@ -140,7 +140,7 @@ namespace TNO.DependencyInjection.Tests.Components
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
       [TestCategory(nameof(IServiceRegistrar.PerRequest))]
-      public void PerRequest_ValidGenericType_WithRegistrationMode_AddsCorrectRegistration(RegistrationMode registrationMode)
+      public void PerRequest_ValidGenericType_WithRegistrationMode_AddsCorrectRegistration(AppendValueMode registrationMode)
       {
          // Arrange
          Type type = typeof(GenericClass<>);
@@ -194,7 +194,7 @@ namespace TNO.DependencyInjection.Tests.Components
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
       [TestCategory(nameof(IServiceRegistrar.Singleton))]
-      public void Singleton_ValidType_WithRegistrationMode_AddsCorrectRegistration(RegistrationMode registrationMode)
+      public void Singleton_ValidType_WithRegistrationMode_AddsCorrectRegistration(AppendValueMode registrationMode)
       {
          // Arrange
          Type type = typeof(object);
@@ -216,7 +216,7 @@ namespace TNO.DependencyInjection.Tests.Components
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
       [TestCategory(nameof(IServiceRegistrar.Singleton))]
-      public void Singleton_ValidGenericType_AddsCorrectRegistration(RegistrationMode registrationMode)
+      public void Singleton_ValidGenericType_AddsCorrectRegistration(AppendValueMode registrationMode)
       {
          // Arrange
          Type type = typeof(GenericClass<>);
@@ -292,7 +292,7 @@ namespace TNO.DependencyInjection.Tests.Components
 
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
-      public void CreateScope_WithCustomRegistrationMode_RedirectsCallToFacade(RegistrationMode registrationMode)
+      public void CreateScope_WithCustomRegistrationMode_RedirectsCallToFacade(AppendValueMode registrationMode)
       {
          // Pre-Act Assert
          Assert.That.IsInconclusiveIf(registrationMode == _sut.DefaultRegistrationMode, $"The registration mode ({registrationMode}) cannot be tested as it is the default.");
@@ -308,7 +308,7 @@ namespace TNO.DependencyInjection.Tests.Components
       public void CreateScope_WithDefaultRegistrationMode_RedirectsCallToFacade()
       {
          // Arrange
-         RegistrationMode registrationMode = _sut.DefaultRegistrationMode;
+         AppendValueMode registrationMode = _sut.DefaultRegistrationMode;
 
          // Act
          _ = _sut.CreateScope();

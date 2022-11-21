@@ -327,8 +327,8 @@ namespace TNO.DependencyInjection.Tests.Components
          ClassWithInterface instance1 = new ClassWithInterface();
          AnotherClassWithInterface instance2 = new AnotherClassWithInterface();
 
-         _context.Registrations.Add(interfaceType, new InstanceRegistration(instance1), RegistrationMode.Append);
-         _context.Registrations.Add(interfaceType, new InstanceRegistration(instance2), RegistrationMode.Append);
+         _context.Registrations.Add(interfaceType, new InstanceRegistration(instance1), AppendValueMode.Append);
+         _context.Registrations.Add(interfaceType, new InstanceRegistration(instance2), AppendValueMode.Append);
 
          // Act
          IEnumerable<object> instances = _sut.GetAll(interfaceType);
@@ -359,7 +359,7 @@ namespace TNO.DependencyInjection.Tests.Components
 
       [DynamicData(nameof(GetAllRegistrationModes))]
       [TestMethod]
-      public void CreateScope_WithCustomRegistrationMode_RedirectsCallToFacade(RegistrationMode registrationMode)
+      public void CreateScope_WithCustomRegistrationMode_RedirectsCallToFacade(AppendValueMode registrationMode)
       {
          // Act
          _ = _sut.CreateScope(registrationMode);

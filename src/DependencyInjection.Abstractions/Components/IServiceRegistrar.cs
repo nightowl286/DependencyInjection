@@ -8,8 +8,8 @@ namespace TNO.DependencyInjection.Abstractions.Components
    public interface IServiceRegistrar : IServiceScope, IDisposable
    {
       #region Properties
-      /// <summary>The default <see cref="RegistrationMode"/> to use when registering a new service.</summary>
-      RegistrationMode DefaultRegistrationMode { get; }
+      /// <summary>The default <see cref="AppendValueMode"/> to use when registering a new service.</summary>
+      AppendValueMode DefaultRegistrationMode { get; }
       #endregion
 
       #region Methods
@@ -24,15 +24,15 @@ namespace TNO.DependencyInjection.Abstractions.Components
       /// <see cref="DefaultRegistrationMode"/> will be used.
       /// </param>
       /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
-      IServiceRegistrar PerRequest(Type serviceType, Type concreteType, RegistrationMode? mode = null);
+      IServiceRegistrar PerRequest(Type serviceType, Type concreteType, AppendValueMode? mode = null);
 
       /// <summary>
       /// Registers the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>,
       /// where a single instance will be created when <paramref name="serviceType"/> is requested,
       /// and then cached and reused for any following requests.
       /// </summary>
-      /// <inheritdoc cref="PerRequest(Type, Type, RegistrationMode?)"/>
-      IServiceRegistrar Singleton(Type serviceType, Type concreteType, RegistrationMode? mode = null);
+      /// <inheritdoc cref="PerRequest(Type, Type, AppendValueMode?)"/>
+      IServiceRegistrar Singleton(Type serviceType, Type concreteType, AppendValueMode? mode = null);
 
       /// <summary>
       /// Registers the given <paramref name="instance"/> as the given <paramref name="serviceType"/>, where the
@@ -45,7 +45,7 @@ namespace TNO.DependencyInjection.Abstractions.Components
       /// <see cref="DefaultRegistrationMode"/> will be used.
       /// </param>
       /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
-      IServiceRegistrar Instance(Type serviceType, object instance, RegistrationMode? mode = null);
+      IServiceRegistrar Instance(Type serviceType, object instance, AppendValueMode? mode = null);
 
       /// <summary>
       /// Will register itself as being available in the dependency injection system.

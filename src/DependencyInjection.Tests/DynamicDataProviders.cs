@@ -9,7 +9,7 @@ namespace TNO.DependencyInjection.Tests
       #region Dynamic data
       public static IEnumerable<object[]> GetAllRegistrationModes()
       {
-         foreach (RegistrationMode mode in Enum.GetValues<RegistrationMode>())
+         foreach (AppendValueMode mode in Enum.GetValues<AppendValueMode>())
             yield return new object[] { mode };
       }
 

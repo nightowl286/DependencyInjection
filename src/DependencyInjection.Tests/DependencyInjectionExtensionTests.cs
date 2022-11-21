@@ -39,7 +39,7 @@ namespace TNO.DependencyInjection.Tests
       #region Instance
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void Instance_WithGenericService_RedirectsWithCorrectTypes(RegistrationMode registrationMode)
+      public void Instance_WithGenericService_RedirectsWithCorrectTypes(AppendValueMode registrationMode)
       {
          // Arrange
          Type serviceType = typeof(IInterfaceForClass);
@@ -54,7 +54,7 @@ namespace TNO.DependencyInjection.Tests
 
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void Instance_WithInstance_RedirectsWithCorrectTypes(RegistrationMode registrationMode)
+      public void Instance_WithInstance_RedirectsWithCorrectTypes(AppendValueMode registrationMode)
       {
          // Arrange
          Type concreteType = typeof(ClassWithInterface);
@@ -71,7 +71,7 @@ namespace TNO.DependencyInjection.Tests
       #region Per Request
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void PerRequest_WithGenericServiceAndConcrete_RedirectsWithCorrectTypes(RegistrationMode registrationMode)
+      public void PerRequest_WithGenericServiceAndConcrete_RedirectsWithCorrectTypes(AppendValueMode registrationMode)
       {
          // Arrange
          Type serviceType = typeof(IInterfaceForClass);
@@ -86,7 +86,7 @@ namespace TNO.DependencyInjection.Tests
 
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void PerRequest_WithGenericConcrete_RedirectsWithCorrectTypes(RegistrationMode registrationMode)
+      public void PerRequest_WithGenericConcrete_RedirectsWithCorrectTypes(AppendValueMode registrationMode)
       {
          // Arrange
          Type concreteType = typeof(ClassWithInterface);
@@ -216,7 +216,7 @@ namespace TNO.DependencyInjection.Tests
       #region Singleton
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void Singleton_WithGenericServiceAndConcrete_RedirectsWithCorrectTypes(RegistrationMode? registrationMode)
+      public void Singleton_WithGenericServiceAndConcrete_RedirectsWithCorrectTypes(AppendValueMode? registrationMode)
       {
          // Arrange
          Type serviceType = typeof(IInterfaceForClass);
@@ -231,7 +231,7 @@ namespace TNO.DependencyInjection.Tests
 
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void Singleton_WithGenericConcrete_RedirectsWithCorrectTypes(RegistrationMode? registrationMode)
+      public void Singleton_WithGenericConcrete_RedirectsWithCorrectTypes(AppendValueMode? registrationMode)
       {
          // Arrange
          Type concreteType = typeof(ClassWithInterface);
@@ -245,7 +245,7 @@ namespace TNO.DependencyInjection.Tests
 
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
-      public void Singleton_WithConcrete_RedirectsWithCorrectTypes(RegistrationMode? registrationMode)
+      public void Singleton_WithConcrete_RedirectsWithCorrectTypes(AppendValueMode? registrationMode)
       {
          // Arrange
          Type concreteType = typeof(ClassWithInterface);

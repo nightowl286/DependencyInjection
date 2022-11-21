@@ -21,7 +21,7 @@ namespace TNO.DependencyInjection.Tests
 
       [DynamicData(nameof(AllRegistrationModes))]
       [TestMethod]
-      public void Add_UniqueValue_WithRegistrationMode_ProperlyStored(RegistrationMode registrationMode)
+      public void Add_UniqueValue_WithRegistrationMode_ProperlyStored(AppendValueMode registrationMode)
       {
          // Arrange
          object value = new object();
@@ -47,15 +47,15 @@ namespace TNO.DependencyInjection.Tests
             third = new object();
          Type type = typeof(object);
 
-         _sut.Add(type, first, RegistrationMode.Append);
-         _sut.Add(type, second.Object, RegistrationMode.Append);
+         _sut.Add(type, first, AppendValueMode.Append);
+         _sut.Add(type, second.Object, AppendValueMode.Append);
 
          // Arrange Assert
          Assert.That.IsInconclusiveIfNot(_sut.TryGet(type, out object? lastStored));
          Assert.That.IsInconclusiveIfNot(ReferenceEquals(second.Object, lastStored));
 
          // Act
-         _sut.Add(type, third, RegistrationMode.ReplaceLatest);
+         _sut.Add(type, third, AppendValueMode.ReplaceLatest);
 
          // Assert
          Assert.IsTrue(_sut.TryGet(type, out lastStored));
@@ -75,15 +75,15 @@ namespace TNO.DependencyInjection.Tests
          object third = new object();
          Type type = typeof(object);
 
-         _sut.Add(type, first.Object, RegistrationMode.Append);
-         _sut.Add(type, second.Object, RegistrationMode.Append);
+         _sut.Add(type, first.Object, AppendValueMode.Append);
+         _sut.Add(type, second.Object, AppendValueMode.Append);
 
          // Arrange Assert
          Assert.That.IsInconclusiveIfNot(_sut.Contains(type));
          Assert.That.IsInconclusiveIf(_sut._store[type].Count != 2);
 
          // Act
-         _sut.Add(type, third, RegistrationMode.ReplaceAll);
+         _sut.Add(type, third, AppendValueMode.ReplaceAll);
 
          // Assert
          Assert.IsTrue(_sut.TryGet(type, out object? lastStored));
@@ -100,8 +100,8 @@ namespace TNO.DependencyInjection.Tests
          object expectedValue = new object();
          Type type = typeof(object);
 
-         _sut.Add(type, new object(), RegistrationMode.Append);
-         _sut.Add(type, expectedValue, RegistrationMode.Append);
+         _sut.Add(type, new object(), AppendValueMode.Append);
+         _sut.Add(type, expectedValue, AppendValueMode.Append);
 
          // Act
          bool contains = _sut.TryGet(type, out object? value);
@@ -136,9 +136,9 @@ namespace TNO.DependencyInjection.Tests
 
          Type type = typeof(object);
 
-         _sut.Add(type, first, RegistrationMode.Append);
-         _sut.Add(type, second, RegistrationMode.Append);
-         _sut.Add(type, third, RegistrationMode.Append);
+         _sut.Add(type, first, AppendValueMode.Append);
+         _sut.Add(type, second, AppendValueMode.Append);
+         _sut.Add(type, third, AppendValueMode.Append);
 
          // Act
          object[] values = _sut.GetAll(type).ToArray();
@@ -204,8 +204,8 @@ namespace TNO.DependencyInjection.Tests
          Mock<IDisposable> disposable1 = new Mock<IDisposable>();
          Mock<IDisposable> disposable2 = new Mock<IDisposable>();
 
-         _sut.Add(type, disposable1.Object, RegistrationMode.Append);
-         _sut.Add(type, disposable2.Object, RegistrationMode.Append);
+         _sut.Add(type, disposable1.Object, AppendValueMode.Append);
+         _sut.Add(type, disposable2.Object, AppendValueMode.Append);
 
          // Arrange Assert
          Assert.That.IsInconclusiveIfNot(_sut.Contains(type));

@@ -11,7 +11,7 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
    public abstract class GetAllBenchmarkBase
    {
       #region Fields
-      private readonly ServiceFacade _serviceFacade = new ServiceFacade(RegistrationMode.Append); 
+      private readonly ServiceFacade _serviceFacade = new ServiceFacade(AppendValueMode.Append); 
       private Type? _interfaceType;
       #endregion
 

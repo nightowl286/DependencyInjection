@@ -31,7 +31,7 @@ namespace TNO.DependencyInjection
       /// <param name="type">The type to use as the key.</param>
       /// <param name="value">The value to associate with the given <paramref name="type"/>.</param>
       /// <param name="registrationMode">The registration mode to use which adding the given <paramref name="value"/>.</param>
-      public void Add(Type type, T value, RegistrationMode registrationMode = RegistrationMode.ReplaceAll)
+      public void Add(Type type, T value, AppendValueMode registrationMode = AppendValueMode.ReplaceAll)
       {
          if (!_store.TryGetValue(type, out List<T>? collection))
          {
@@ -39,13 +39,13 @@ namespace TNO.DependencyInjection
             _store.Add(type, collection);
          }
 
-         if ((registrationMode == RegistrationMode.ReplaceLatest && collection.Count > 0)
-            || (registrationMode == RegistrationMode.ReplaceAll && collection.Count == 1))
+         if ((registrationMode == AppendValueMode.ReplaceLatest && collection.Count > 0)
+            || (registrationMode == AppendValueMode.ReplaceAll && collection.Count == 1))
          {
             collection[^1].TryDispose();
             collection[^1] = value;
          }
-         else if (registrationMode == RegistrationMode.ReplaceAll && collection.Count > 0)
+         else if (registrationMode == AppendValueMode.ReplaceAll && collection.Count > 0)
          {
             foreach (T collectionValue in collection)
                collectionValue.TryDispose();

@@ -3,7 +3,7 @@
    /// <summary>
    /// Represents the different modes of registration.
    /// </summary>
-   public enum RegistrationMode : byte
+   public enum AppendValueMode : byte
    {
       /// <summary>Specifies that all registration with the specified service type should be replaced.</summary>
       ReplaceAll,

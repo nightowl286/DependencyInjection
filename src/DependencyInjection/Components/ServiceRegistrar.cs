@@ -11,16 +11,16 @@ namespace TNO.DependencyInjection.Components
       #endregion
 
       #region Properties
-      public RegistrationMode DefaultRegistrationMode { get; }
+      public AppendValueMode DefaultRegistrationMode { get; }
       #endregion
-      public ServiceRegistrar(ServiceContext context, RegistrationMode defaultMode = RegistrationMode.ReplaceAll)
+      public ServiceRegistrar(ServiceContext context, AppendValueMode defaultMode = AppendValueMode.ReplaceAll)
       {
          DefaultRegistrationMode = defaultMode;
          _context = context;
       }
 
       #region Methods
-      public IServiceRegistrar Instance(Type serviceType, object instance, RegistrationMode? mode = null)
+      public IServiceRegistrar Instance(Type serviceType, object instance, AppendValueMode? mode = null)
       {
          if (!serviceType.IsAssignableFrom(instance.GetType()))
             throw new ArgumentException($"The type of the given instance ({instance.GetType()}) cannot be assigned to the given service type ({serviceType}).");
@@ -30,7 +30,7 @@ namespace TNO.DependencyInjection.Components
 
          return this;
       }
-      public IServiceRegistrar PerRequest(Type serviceType, Type concreteType, RegistrationMode? mode = null)
+      public IServiceRegistrar PerRequest(Type serviceType, Type concreteType, AppendValueMode? mode = null)
       {
          RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
 
@@ -39,7 +39,7 @@ namespace TNO.DependencyInjection.Components
 
          return this;
       }
-      public IServiceRegistrar Singleton(Type serviceType, Type concreteType, RegistrationMode? mode = null)
+      public IServiceRegistrar Singleton(Type serviceType, Type concreteType, AppendValueMode? mode = null)
       {
          RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
 
@@ -54,7 +54,7 @@ namespace TNO.DependencyInjection.Components
          return this;
       }
       public bool IsRegistered(Type type) => _context.Facade.IsRegistered(type);
-      public IServiceFacade CreateScope(RegistrationMode? defaultMode = null) => _context.Facade.CreateScope(defaultMode ?? DefaultRegistrationMode);
+      public IServiceFacade CreateScope(AppendValueMode? defaultMode = null) => _context.Facade.CreateScope(defaultMode ?? DefaultRegistrationMode);
       public void Dispose() { }
       public IServiceRegistrar RegisterSelf()
       {

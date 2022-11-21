@@ -64,7 +64,7 @@ namespace TNO.DependencyInjection.Components
 
             genericInstance = Build(type, genericSingleton.Type);
 
-            genericSingleton.Instances.Add(type, genericInstance, RegistrationMode.Append);
+            genericSingleton.Instances.Add(type, genericInstance, AppendValueMode.Append);
             return genericInstance;
          }
          else if (registration is PerRequestRegistration perRequest)
@@ -129,7 +129,7 @@ namespace TNO.DependencyInjection.Components
          return _context.OuterContext?.Facade.GetOptional(type);
       }
       public bool IsRegistered(Type type) => _context.Facade.IsRegistered(type);
-      public IServiceFacade CreateScope(RegistrationMode? defaultMode = null) => _context.Facade.CreateScope(defaultMode);
+      public IServiceFacade CreateScope(AppendValueMode? defaultMode = null) => _context.Facade.CreateScope(defaultMode);
       public void Dispose() { }
       #endregion
 
