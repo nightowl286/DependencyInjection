@@ -1,10 +1,12 @@
 ﻿using TNO.DependencyInjection.Abstractions;
+using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Abstractions.Explanations;
 using TNO.DependencyInjection.Components;
 
 namespace TNO.DependencyInjection.Tests.Components
 {
    [TestClass]
+   [TestCategory(Category.Builder)]
    [TestCategory(Category.Dependency_Injection)]
    [TestCategory(Category.Dependency_Injection_Component)]
    public class ServiceBuilderTests // most tests will require new dynamic data

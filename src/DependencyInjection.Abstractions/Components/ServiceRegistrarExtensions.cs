@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using TNO.DependencyInjection.Abstractions.Components;
-using TNO.DependencyInjection.Abstractions.Explanations;
 
-namespace TNO.DependencyInjection.Abstractions
+namespace TNO.DependencyInjection.Abstractions.Components
 {
    /// <summary>
-   /// Provides extension methods to the interfaces defined in the <see cref="Abstractions"/> namespace.
+   /// Contains extension methods for the <see cref="IServiceRegistrar"/> type.
    /// </summary>
-   public static class DependencyInjectionExtensions
+   public static class ServiceRegistrarExtensions
    {
-      #region Service Registrar
       #region Per Request
       /// <summary>
       /// Registers the <typeparamref name="TConcrete"/> type as the <typeparamref name="TService"/> type,
@@ -216,157 +211,6 @@ namespace TNO.DependencyInjection.Abstractions
       public static IServiceRegistrar SingletonIfMissing<TConcrete>(this IServiceRegistrar registrar)
          where TConcrete : notnull
          => SingletonIfMissing(registrar, typeof(TConcrete), typeof(TConcrete));
-      #endregion
-
-      #endregion
-
-      #region Service Requester
-      /// <summary>Requests an instance that was registered for the type <typeparamref name="T"/>.</summary>
-      /// <typeparam name="T">The type of the service to request.</typeparam>
-      /// <param name="requester">The requester instance to use.</param>
-      /// <returns>An instance of the registered service/</returns>
-      public static T Get<T>(this IServiceRequester requester) where T : notnull
-         => (T)requester.Get(typeof(T));
-
-      /// <summary>Attempts to request an instance that was registered for the type <typeparamref name="T"/>.</summary>
-      /// <typeparam name="T">The type of the service to request.</typeparam>
-      /// <param name="requester">The requester instance to use.</param>
-      /// <returns>
-      /// An instance of the registered service, or <see langword="null"/>
-      /// if the type <typeparamref name="T"/> has not been registered.
-      /// </returns>
-      public static T? GetOptional<T>(this IServiceRequester requester) where T : notnull
-         => (T?)requester.GetOptional(typeof(T));
-
-      /// <summary>Tries to get an instance registered for the given <paramref name="type"/>.</summary>
-      /// <param name="requester">The requester instance to use.</param>
-      /// <param name="type">The type to try and request.</param>
-      /// <param name="instance">
-      /// An instance of the given <paramref name="type"/>, or 
-      /// <see langword="null"/> if an instance couldn't be obtained.
-      /// </param>
-      /// <returns><see langword="true"/> if an instance was obtained, <see langword="false"/> otherwise.</returns>
-      public static bool TryGet(this IServiceRequester requester, Type type, [NotNullWhen(true)] out object? instance)
-      {
-         instance = requester.GetOptional(type);
-         return instance is not null;
-      }
-
-      /// <summary>Tries to get an instance registered for the type <typeparamref name="T"/>.</summary>
-      /// <typeparam name="T">The type to try and request.</typeparam>
-      /// <param name="requester">The requester instance to use.</param>
-      /// <param name="instance">
-      /// An instance of the type <typeparamref name="T"/> or 
-      /// <see langword="null"/> if an instance couldn't be obtained.
-      /// </param>
-      /// <returns><see langword="true"/> if an instance was obtained, <see langword="false"/> otherwise.</returns>
-      public static bool TryGet<T>(this IServiceRequester requester, [NotNullWhen(true)] out T? instance)
-         where T : notnull
-      {
-         instance = (T?)requester.GetOptional(typeof(T));
-         return instance is not null;
-      }
-
-      /// <summary>Requests all the instances registered for the type <typeparamref name="T"/>.</summary>
-      /// <typeparam name="T">The type of the services to request.</typeparam>
-      /// <param name="requester">The requester instance.</param>
-      /// <returns>A collection of the registered instances.</returns>
-      public static IEnumerable<T> GetAll<T>(this IServiceRequester requester) where T : notnull
-      {
-         IEnumerable<object> all = requester.GetAll(typeof(T));
-         foreach (object obj in all)
-            yield return (T)obj;
-      }
-      #endregion
-
-      #region Service Builder
-      /// <summary>
-      /// Generates an explanation as to why an instance of the type
-      /// <typeparamref name="T"/> cannot be built.
-      /// </summary>
-      /// <typeparam name="T">The type to try and explain.</typeparam>
-      /// <param name="builder">The builder instance to use.</param>
-      /// <returns>
-      /// An explanation as to why the type <typeparamref name="T"/> cannot
-      /// be built, or <see langword="null"/> if there are no problems.
-      /// </returns>
-      public static ITypeExplanation? Explain<T>(this IServiceBuilder builder) => builder.Explain(typeof(T));
-
-      /// <summary>Build an instance of the type <typeparamref name="T"/>.</summary>
-      /// <typeparam name="T">The type to build.</typeparam>
-      /// <param name="builder">The builder instance to use.</param>
-      /// <returns>An instance of the type <typeparamref name="T"/>.</returns>
-      public static T Build<T>(this IServiceBuilder builder) where T : notnull
-         => (T)builder.Build(typeof(T));
-
-      /// <summary>Tries to build an instance of the given <paramref name="type"/>.</summary>
-      /// <param name="builder">The builder instance to use.</param>
-      /// <param name="type">The type to try and build.</param>
-      /// <param name="instance">
-      /// The built instance, or <see langword="null"/> if an instance
-      /// of the given <paramref name="type"/> could not be built.
-      /// </param>
-      /// <remarks>If building has failed, you can call <see cref="IServiceBuilder.Explain(Type)"/> to see the reason why.</remarks>
-      /// <returns><see langword="true"/> if building was successful, <see langword="false"/> otherwise.</returns>
-      public static bool TryBuild(this IServiceBuilder builder, Type type, [NotNullWhen(true)] out object? instance)
-      {
-         if (builder.CanBuild(type))
-         {
-            instance = builder.Build(type);
-            return true;
-         }
-
-         instance = null;
-         return false;
-      }
-
-      /// <summary>Tries to build an instance of the type <typeparamref name="T"/>.</summary>
-      /// <typeparam name="T">The type to try and build.</typeparam>
-      /// <param name="builder">The builder instance to use.</param>
-      /// <param name="instance">
-      /// The built instance, or <see langword="null"/> if an instance 
-      /// of the type <typeparamref name="T"/> could not be built.
-      /// </param>
-      /// <remarks>If building has failed, you can call <see cref="Explain{T}(IServiceBuilder)"/> to see the reason why.</remarks>
-      /// <returns><see langword="true"/> if building was successful, <see langword="false"/> otherwise.</returns>
-      public static bool TryBuild<T>(this IServiceBuilder builder, [NotNullWhen(true)] out T? instance) where T : notnull
-      {
-         if (TryBuild(builder, typeof(T), out object? inst))
-         {
-            instance = (T)inst;
-            return true;
-         }
-
-         instance = default;
-         return false;
-      }
-      #endregion
-
-      #region Facade
-      /// <summary>
-      /// Try to obtain an instance registered with the given <paramref name="type"/>, 
-      /// if that fails, build an instance of the given <paramref name="type"/>.
-      /// </summary>
-      /// <param name="facade">The facade instance to use.</param>
-      /// <param name="type">The type to request, or build.</param>
-      /// <returns>An instance of the given <paramref name="type"/>.</returns>
-      public static object GetOrBuild(this IServiceFacade facade, Type type)
-      {
-         if (TryGet(facade, type, out object? instance))
-            return instance;
-
-         return facade.Build(type);
-      }
-
-      /// <summary>
-      /// Try to obtain an instance registered with the type <typeparamref name="T"/>,
-      /// if that fails, build an instance of type <typeparamref name="T"/>.
-      /// </summary>
-      /// <typeparam name="T">The type to request, or build.</typeparam>
-      /// <param name="facade">The facade instance to use.</param>
-      /// <returns>An instance of type <typeparamref name="T"/>.</returns>
-      public static T GetOrBuild<T>(this IServiceFacade facade) where T : notnull
-         => (T)GetOrBuild(facade, typeof(T));
       #endregion
    }
 }

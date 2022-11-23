@@ -3,12 +3,11 @@ using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Components;
 using TNO.DependencyInjection.Components.Registration;
-using TNO.Tests.Moq;
-using TNO.Tests.Common;
 
 namespace TNO.DependencyInjection.Tests.Components
 {
    [TestClass]
+   [TestCategory(Category.Registrar)]
    [TestCategory(Category.Dependency_Injection)]
    [TestCategory(Category.Dependency_Injection_Component)]
    public class ServiceRegistrarTests

@@ -2,40 +2,29 @@
 using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 
-namespace TNO.DependencyInjection.Tests
+namespace TNO.DependencyInjection.Tests.Components.Extensions
 {
-   [TestCategory(Category.Dependency_Injection)]
-   [TestCategory(Category.Extensions)]
    [TestClass]
-   public class DependencyInjectionExtensionTests
+   [TestCategory(Category.Registrar)]
+   [TestCategory(Category.Extensions)]
+   [TestCategory(Category.Dependency_Injection)]
+   public class ServiceRegistrarExtensionTests
    {
       #region Fields
       private readonly Mock<IServiceRegistrar> _registrarMock;
       private readonly IServiceRegistrar _registrar;
-
-      private readonly Mock<IServiceRequester> _requesterMock;
-      private readonly IServiceRequester _requester;
-
-      private readonly Mock<IServiceBuilder> _builderMock;
-      private readonly IServiceBuilder _builder;
       #endregion
 
       #region Properties
       public static IEnumerable<object?[]> GetAllRegistrationModesAndNull => DynamicDataProviders.GetAllRegistrationModesAndNull();
       #endregion
-      public DependencyInjectionExtensionTests()
+      public ServiceRegistrarExtensionTests()
       {
          _registrarMock = new Mock<IServiceRegistrar>();
          _registrar = _registrarMock.Object;
-
-         _requesterMock = new Mock<IServiceRequester>();
-         _requester = _requesterMock.Object;
-
-         _builderMock = new Mock<IServiceBuilder>();
-         _builder = _builderMock.Object;
       }
 
-      #region Service Registrar
+      #region Test Methods
       #region Instance
       [DynamicData(nameof(GetAllRegistrationModesAndNull))]
       [TestMethod]
@@ -46,7 +35,7 @@ namespace TNO.DependencyInjection.Tests
          ClassWithInterface instance = new ClassWithInterface();
 
          // Act
-         DependencyInjectionExtensions.Instance<IInterfaceForClass>(_registrar, instance, registrationMode);
+         ServiceRegistrarExtensions.Instance<IInterfaceForClass>(_registrar, instance, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Instance(serviceType, instance, registrationMode));
@@ -61,7 +50,7 @@ namespace TNO.DependencyInjection.Tests
          object instance = new ClassWithInterface();
 
          // Act
-         DependencyInjectionExtensions.Instance(_registrar, instance, registrationMode);
+         ServiceRegistrarExtensions.Instance(_registrar, instance, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Instance(concreteType, instance, registrationMode));
@@ -78,7 +67,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.PerRequest<IInterfaceForClass, ClassWithInterface>(_registrar, registrationMode);
+         ServiceRegistrarExtensions.PerRequest<IInterfaceForClass, ClassWithInterface>(_registrar, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.PerRequest(serviceType, concreteType, registrationMode));
@@ -92,7 +81,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.PerRequest<ClassWithInterface>(_registrar, registrationMode);
+         ServiceRegistrarExtensions.PerRequest<ClassWithInterface>(_registrar, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.PerRequest(concreteType, concreteType, registrationMode));
@@ -108,7 +97,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing(_registrar, serviceType, concreteType);
+         ServiceRegistrarExtensions.PerRequestIfMissing(_registrar, serviceType, concreteType);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.PerRequest(serviceType, concreteType, null));
@@ -123,7 +112,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(serviceType) == true);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing(registrar, serviceType, concreteType);
+         ServiceRegistrarExtensions.PerRequestIfMissing(registrar, serviceType, concreteType);
 
          // Assert
          _registrarMock.VerifyNever(f => f.PerRequest(serviceType, concreteType, null));
@@ -137,7 +126,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing<IInterfaceForClass, ClassWithInterface>(_registrar);
+         ServiceRegistrarExtensions.PerRequestIfMissing<IInterfaceForClass, ClassWithInterface>(_registrar);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.PerRequest(serviceType, concreteType, null));
@@ -152,7 +141,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(serviceType) == true);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing<IInterfaceForClass, ClassWithInterface>(registrar);
+         ServiceRegistrarExtensions.PerRequestIfMissing<IInterfaceForClass, ClassWithInterface>(registrar);
 
          // Assert
          _registrarMock.VerifyNever(f => f.PerRequest(serviceType, concreteType, null));
@@ -165,7 +154,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing(_registrar, concreteType);
+         ServiceRegistrarExtensions.PerRequestIfMissing(_registrar, concreteType);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.PerRequest(concreteType, concreteType, null));
@@ -179,7 +168,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(concreteType) == true);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing(registrar, concreteType);
+         ServiceRegistrarExtensions.PerRequestIfMissing(registrar, concreteType);
 
          // Assert
          _registrarMock.VerifyNever(f => f.PerRequest(concreteType, concreteType, null));
@@ -192,7 +181,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing<ClassWithInterface>(_registrar);
+         ServiceRegistrarExtensions.PerRequestIfMissing<ClassWithInterface>(_registrar);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.PerRequest(concreteType, concreteType, null));
@@ -206,7 +195,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(concreteType) == true);
 
          // Act
-         DependencyInjectionExtensions.PerRequestIfMissing<ClassWithInterface>(registrar);
+         ServiceRegistrarExtensions.PerRequestIfMissing<ClassWithInterface>(registrar);
 
          // Assert
          _registrarMock.VerifyNever(f => f.PerRequest(concreteType, concreteType, null));
@@ -223,7 +212,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.Singleton<IInterfaceForClass, ClassWithInterface>(_registrar, registrationMode);
+         ServiceRegistrarExtensions.Singleton<IInterfaceForClass, ClassWithInterface>(_registrar, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(serviceType, concreteType, registrationMode));
@@ -237,7 +226,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.Singleton<ClassWithInterface>(_registrar, registrationMode);
+         ServiceRegistrarExtensions.Singleton<ClassWithInterface>(_registrar, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(concreteType, concreteType, registrationMode));
@@ -251,7 +240,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.Singleton(_registrar, concreteType, registrationMode);
+         ServiceRegistrarExtensions.Singleton(_registrar, concreteType, registrationMode);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(concreteType, concreteType, registrationMode));
@@ -267,7 +256,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing(_registrar, serviceType, concreteType);
+         ServiceRegistrarExtensions.SingletonIfMissing(_registrar, serviceType, concreteType);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(serviceType, concreteType, null));
@@ -282,7 +271,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(serviceType) == true);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing(registrar, serviceType, concreteType);
+         ServiceRegistrarExtensions.SingletonIfMissing(registrar, serviceType, concreteType);
 
          // Assert
          _registrarMock.VerifyNever(f => f.Singleton(serviceType, concreteType, null));
@@ -296,7 +285,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing<IInterfaceForClass, ClassWithInterface>(_registrar);
+         ServiceRegistrarExtensions.SingletonIfMissing<IInterfaceForClass, ClassWithInterface>(_registrar);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(serviceType, concreteType, null));
@@ -311,7 +300,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(serviceType) == true);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing<IInterfaceForClass, ClassWithInterface>(registrar);
+         ServiceRegistrarExtensions.SingletonIfMissing<IInterfaceForClass, ClassWithInterface>(registrar);
 
          // Assert
          _registrarMock.VerifyNever(f => f.Singleton(serviceType, concreteType, null));
@@ -324,7 +313,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing(_registrar, concreteType);
+         ServiceRegistrarExtensions.SingletonIfMissing(_registrar, concreteType);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(concreteType, concreteType, null));
@@ -338,7 +327,7 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(concreteType) == true);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing(registrar, concreteType);
+         ServiceRegistrarExtensions.SingletonIfMissing(registrar, concreteType);
 
          // Assert
          _registrarMock.VerifyNever(f => f.Singleton(concreteType, concreteType, null));
@@ -351,7 +340,7 @@ namespace TNO.DependencyInjection.Tests
          Type concreteType = typeof(ClassWithInterface);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing<ClassWithInterface>(_registrar);
+         ServiceRegistrarExtensions.SingletonIfMissing<ClassWithInterface>(_registrar);
 
          // Assert
          _registrarMock.VerifyOnce(f => f.Singleton(concreteType, concreteType, null));
@@ -365,233 +354,12 @@ namespace TNO.DependencyInjection.Tests
          IServiceRegistrar registrar = Mock.Of<IServiceRegistrar>(r => r.IsRegistered(concreteType) == true);
 
          // Act
-         DependencyInjectionExtensions.SingletonIfMissing<ClassWithInterface>(registrar);
+         ServiceRegistrarExtensions.SingletonIfMissing<ClassWithInterface>(registrar);
 
          // Assert
          _registrarMock.VerifyNever(f => f.Singleton(concreteType, concreteType, null));
       }
       #endregion
-      #endregion
-
-      #region Service Requester
-      [TestMethod]
-      public void Get_WithGenericType_RedirectsWithCorrectType()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         DependencyInjectionExtensions.Get<Class>(_requester);
-
-         // Assert
-         _requesterMock.VerifyOnce(r => r.Get(type));
-      }
-
-      [TestMethod]
-      public void GetOptional_WithGenericType_RedirectsWithCorrectType()
-      {
-         // Arrange
-         Type type = typeof(Class);
-         Class expectedInstance = new Class();
-         Mock<IServiceRequester> requesterMock = new Mock<IServiceRequester>();
-         requesterMock.Setup(r => r.GetOptional(type)).Returns(expectedInstance);
-
-         // Act
-         Class? instance =  DependencyInjectionExtensions.GetOptional<Class>(requesterMock.Object);
-
-         // Assert
-         requesterMock.VerifyOnce(r => r.GetOptional(type));
-         Assert.AreSame(expectedInstance, instance);
-      }
-
-      [TestMethod]
-      public void GetOptional_WithMissingGenericType_ReturnsNull()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         Class? instance = DependencyInjectionExtensions.GetOptional<Class>(_requester);
-
-         // Assert
-         _requesterMock.VerifyOnce(r => r.GetOptional(type));
-         Assert.IsNull(instance);
-      }
-
-      [TestMethod]
-      public void TryGet_WithMissingType_RedirectsWithCorrectTypeAndReturnsFalseAndNull()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryGet(_requester, type, out object? instance);
-
-         // Assert
-         _requesterMock.VerifyOnce(r => r.GetOptional(type));
-         Assert.IsFalse(success);
-         Assert.IsNull(instance);
-      }
-
-      [TestMethod]
-      public void TryGet_WithValidType_RedirectsWithCorrectTypeAndReturnsTrueAndValidInstance()
-      {
-         // Arrange
-         Type type = typeof(Class);
-         Class expectedInstance = new Class();
-
-         Mock<IServiceRequester> requesterMock = new Mock<IServiceRequester>();
-         requesterMock.Setup(r => r.GetOptional(type)).Returns(expectedInstance);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryGet(requesterMock.Object, type, out object? instance);
-
-         // Assert
-         requesterMock.VerifyOnce(r => r.GetOptional(type));
-         Assert.IsTrue(success);
-         Assert.AreSame(expectedInstance, instance);
-      }
-
-      [TestMethod]
-      public void TryGet_WithMissingGenericType_RedirectsWithCorrectTypeAndReturnsFalseAndNull()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryGet(_requester, out Class? instance);
-
-         // Assert
-         _requesterMock.VerifyOnce(r => r.GetOptional(type));
-         Assert.IsFalse(success);
-         Assert.IsNull(instance);
-      }
-
-      [TestMethod]
-      public void TryGet_WithValidGenericType_RedirectsWithCorrectTypeAndReturnsTrueAndValidInstance()
-      {
-         // Arrange
-         Type type = typeof(Class);
-         Class expectedInstance = new Class();
-
-         Mock<IServiceRequester> requesterMock = new Mock<IServiceRequester>();
-         requesterMock.Setup(r => r.GetOptional(type)).Returns(expectedInstance);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryGet(requesterMock.Object, out Class? instance);
-
-         // Assert
-         requesterMock.VerifyOnce(r => r.GetOptional(type));
-         Assert.IsTrue(success);
-         Assert.AreSame(expectedInstance, instance);
-      }
-
-      [TestMethod]
-      public void GetAll_WithValidGenericType_RedirectsWithCorrectType()
-      {
-         // Arrange
-         Type type = typeof(Class);
-         Class expectedInstance = new Class();
-
-         Mock<IServiceRequester> requesterMock = new Mock<IServiceRequester>();
-         requesterMock.Setup(r => r.GetAll(type)).Returns(new[] { expectedInstance });
-
-         // Act
-         IEnumerable<Class> instances = DependencyInjectionExtensions.GetAll<Class>(requesterMock.Object);
-
-         // Pre-Assert
-         Class[] array = instances.ToArray();
-
-         // Assert
-         requesterMock.VerifyOnce(r => r.GetAll(type));
-         Assert.IsTrue(array.Length == 1);
-         Assert.AreSame(expectedInstance, array[0]);
-      }
-      #endregion
-
-      #region Service Builder
-      [TestMethod]
-      public void Build_WithValidGenericType_RedirectsWithCorrectType()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         _ = DependencyInjectionExtensions.Build<Class>(_builder);
-
-         // Assert
-         _builderMock.VerifyOnce(b => b.Build(type));
-      }
-
-      [TestMethod]
-      public void TryBuild_WithValidType_RedirectsWithCorrectTypeAndReturnsTrueAndCorrectInstance()
-      {
-         // Arrange
-         Type type = typeof(Class);
-         Class expectedInstance = new Class();
-
-         Mock<IServiceBuilder> builderMock = new Mock<IServiceBuilder>();
-         builderMock.Setup(b => b.CanBuild(type)).Returns(true);
-         builderMock.Setup(b => b.Build(type)).Returns(expectedInstance);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryBuild(builderMock.Object, type, out object? instance);
-
-         // Assert
-         Assert.IsTrue(success);
-         Assert.AreSame(expectedInstance, instance);
-         builderMock.VerifyOnce(b => b.Build(type));
-      }
-
-      [TestMethod]
-      public void TryBuild_WithInvalidType_ReturnsFalseAndNull()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryBuild(_builder, type, out object? instance);
-
-         // Assert
-         Assert.IsFalse(success);
-         Assert.IsNull(instance);
-         _builderMock.VerifyNever(b => b.Build(type));
-      }
-
-      [TestMethod]
-      public void TryBuild_WithValidGenericType_RedirectsWithCorrectTypeAndReturnsTrueAndCorrectInstance()
-      {
-         // Arrange
-         Type type = typeof(Class);
-         Class expectedInstance = new Class();
-
-         Mock<IServiceBuilder> builderMock = new Mock<IServiceBuilder>();
-         builderMock.Setup(b => b.CanBuild(type)).Returns(true);
-         builderMock.Setup(b => b.Build(type)).Returns(expectedInstance);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryBuild(builderMock.Object, out Class? instance);
-
-         // Assert
-         Assert.IsTrue(success);
-         Assert.AreSame(expectedInstance, instance);
-         builderMock.VerifyOnce(b => b.Build(type));
-      }
-
-      [TestMethod]
-      public void TryBuild_WithInvalidGenericType_ReturnsFalseAndNull()
-      {
-         // Arrange
-         Type type = typeof(Class);
-
-         // Act
-         bool success = DependencyInjectionExtensions.TryBuild(_builder, out Class? instance);
-
-         // Assert
-         Assert.IsFalse(success);
-         Assert.IsNull(instance);
-         _builderMock.VerifyNever(b => b.Build(type));
-      }
       #endregion
    }
 }

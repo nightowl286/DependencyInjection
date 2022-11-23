@@ -6,6 +6,7 @@ using TNO.DependencyInjection.Components.Registration;
 namespace TNO.DependencyInjection.Tests.Components
 {
    [TestClass]
+   [TestCategory(Category.Requester)]
    [TestCategory(Category.Dependency_Injection)]
    [TestCategory(Category.Dependency_Injection_Component)]
    public class ServiceRequesterTests
