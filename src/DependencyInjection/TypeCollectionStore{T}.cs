@@ -7,9 +7,7 @@ using TNO.DependencyInjection.Abstractions;
 
 namespace TNO.DependencyInjection
 {
-   // Todo(Anyone): Add generic extension methods for this;
-
-   /// <inheritdoc/>
+   /// <inheritdoc cref="ITypeCollectionStore{T}"/>
    public class TypeCollectionStore<T> : DisposableBase, ITypeCollectionStore<T> where T : notnull
    {
       #region Fields
