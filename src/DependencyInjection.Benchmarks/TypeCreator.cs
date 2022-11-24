@@ -13,7 +13,7 @@ namespace DependencyInjection.Benchmarks
 
       #region Methods
 
-      public void Create(int amount)
+      public void Create(int amount, bool requirePrevious)
       {
          string name = "DynamicBenchmarkClasses";
          AssemblyName assemblyName = new AssemblyName(name);
@@ -22,6 +22,8 @@ namespace DependencyInjection.Benchmarks
          ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
          Cleanup();
+
+         ConstructorInfo objCtor = Type.GetType("System.Object")!.GetConstructor(Array.Empty<Type>())!;
          for (int i = 1; i <= amount; i++)
          {
             Type interfaceType = moduleBuilder
@@ -31,9 +33,25 @@ namespace DependencyInjection.Benchmarks
 
             Interfaces.Add(interfaceType);
 
-            Type classType = moduleBuilder
-               .DefineType($"DynamicBenchmarkClass{i}", TypeAttributes.Class | TypeAttributes.Public, null, new[] { interfaceType })
-               .CreateType()
+            TypeBuilder classTypeBuilder = moduleBuilder
+               .DefineType($"DynamicBenchmarkClass{i}", TypeAttributes.Class | TypeAttributes.Public, null, new[] { interfaceType });
+
+            if (requirePrevious && i > 1)
+            {
+               Type previous = Types[i - 2];
+
+               ConstructorBuilder constructorBuilder = classTypeBuilder
+                  .DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new[] { previous });
+
+               ILGenerator gen = constructorBuilder.GetILGenerator();
+               gen.Emit(OpCodes.Ldarg_0);
+
+               gen.Emit(OpCodes.Call, objCtor);
+
+               gen.Emit(OpCodes.Ret);
+            }
+
+            Type classType = classTypeBuilder.CreateType()
                ?? throw new Exception("Couldn't create class.");
 
             Types.Add(classType);

@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 using TNO.Common.Extensions;
-using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Abstractions.Explanations;
 using TNO.DependencyInjection.Explanation;
@@ -51,13 +51,26 @@ namespace TNO.DependencyInjection.Components
             throw explanation.ToException();
          }
       }
+      public Func<object> BuildDelegate(Type type)
+      {
+         try
+         {
+            return BuildDelegateCore(type);
+         }
+         catch (Exception) // Todo(Anyone): Would be best to have a special internal only exception for this.
+         {
+            ITypeExplanation? explanation = Explain(type);
+            if (explanation is null)
+               throw;
+
+            throw explanation.ToException();
+         }
+      }
+      public bool CanBuild(Type type) => TryFindInjectableConstructor(type, out _, out _);
+      public void Dispose() { }
       private object BuildCore(Type type)
       {
-         // Todo(Anyone): Add type check;
-         ConstructorInfo[] constructors = type.GetConstructors();
-         IEnumerable<ConstructorInfo> filtered = FilterInvalidConstructors(constructors);
-
-         if (TryFindInjectableConstructor(filtered, out ConstructorInfo? injectable, out ConstructorInfo? ambiguousAgainst))
+         if (TryFindInjectableConstructor(type, out ConstructorInfo? injectable, out ConstructorInfo? ambiguousAgainst))
          {
             ParameterInfo[] parameters = injectable.GetParameters();
             object?[] arguments = new object[parameters.Length];
@@ -75,15 +88,30 @@ namespace TNO.DependencyInjection.Components
          else
             throw new Exception($"No injectable constructor was found on the type ({type}).");
       }
-      public bool CanBuild(Type type)
+      private Func<object> BuildDelegateCore(Type type)
       {
-         // Todo(Anyone): Add type check;
-         ConstructorInfo[] constructors = type.GetConstructors();
-         IEnumerable<ConstructorInfo> filtered = FilterInvalidConstructors(constructors);
+         if (TryFindInjectableConstructor(type, out ConstructorInfo? injectable, out ConstructorInfo? ambiguousAgainst))
+         {
+            ParameterInfo[] parameters = injectable.GetParameters();
+            Expression[] arguments = new Expression[parameters.Length];
 
-         return TryFindInjectableConstructor(filtered, out _, out _);
+            for (int i = 0; i < parameters.Length; i++)
+            {
+               ParameterInfo parameter = parameters[i];
+               Expression argument = BuildParameterExpression(parameter);
+               arguments[i] = argument;
+            }
+
+            Expression createInstance = Expression.New(injectable, arguments);
+            Expression<Func<object>> buildExpression = Expression.Lambda<Func<object>>(createInstance, $"BuildDelegate<{type.FullName}>", null);
+
+            return buildExpression.Compile();
+         }
+         else if (ambiguousAgainst is not null)
+            throw new Exception($"Ambiguous constructors were found on the type ({type}), ({injectable}) is ambiguous against ({ambiguousAgainst}).");
+         else
+            throw new Exception($"No injectable constructor was found on the type ({type}).");
       }
-      public void Dispose() { }
       #endregion
 
       #region Helpers
@@ -153,6 +181,32 @@ namespace TNO.DependencyInjection.Components
             return null;
 
          throw new Exception($"Failed to build the parameter ({parameter}).");
+      }
+      private Expression BuildParameterExpression(ParameterInfo parameter)
+      {
+         Type parameterType = parameter.ParameterType;
+         if (_context.Facade.IsRegistered(parameterType))
+         {
+            Expression instance = Expression.Constant(_context.Facade);
+            Expression get = Expression.Call(
+               instance,
+               nameof(_context.Facade.Get),
+               null,
+               Expression.Constant(parameterType));
+
+            return Expression.TypeAs(get, parameterType);
+         }
+
+
+         throw new Exception();
+      }
+      private bool TryFindInjectableConstructor(Type type, [NotNullWhen(true)] out ConstructorInfo? injectable, out ConstructorInfo? ambiguousAgainst)
+      {
+         // Todo(Anyone): Old task, something to do with type checks?;
+         ConstructorInfo[] constructors = type.GetConstructors();
+         IEnumerable<ConstructorInfo> filtered = FilterInvalidConstructors(constructors);
+
+         return TryFindInjectableConstructor(filtered, out injectable, out ambiguousAgainst);
       }
       private bool TryFindInjectableConstructor(IEnumerable<ConstructorInfo> constructors, [NotNullWhen(true)] out ConstructorInfo? injectable, out ConstructorInfo? ambiguousAgainst)
       {

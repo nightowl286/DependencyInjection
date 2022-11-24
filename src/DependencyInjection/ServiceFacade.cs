@@ -71,6 +71,9 @@ namespace TNO.DependencyInjection
       public object Build(Type type) => _builder.Build(type);
 
       /// <inheritdoc/>
+      public Func<object> BuildDelegate(Type type) => _builder.BuildDelegate(type);
+
+      /// <inheritdoc/>
       public bool CanBuild(Type type) => _builder.CanBuild(type);
 
       /// <inheritdoc/>

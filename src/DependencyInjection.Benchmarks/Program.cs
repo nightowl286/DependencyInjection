@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Running;
-using DependencyInjection.Benchmarks.Benchmarks.Get;
+using DependencyInjection.Benchmarks.Benchmarks;
 
-BenchmarkRunner.Run<GetAllSingletonBenchmark>();
+BenchmarkRunner.Run<BuildBenchmark>();
 
 Console.ReadLine();

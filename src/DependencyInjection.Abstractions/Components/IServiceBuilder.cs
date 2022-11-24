@@ -26,6 +26,17 @@ namespace TNO.DependencyInjection.Abstractions.Components
       /// <returns>An instance of the given <paramref name="type"/>.</returns>
       object Build(Type type);
 
+      /// <summary>
+      /// Generates a <see cref="Func{TResult}"/> delegate that can be invoke 
+      /// to build an instance of the given <paramref name="type"/>.
+      /// </summary>
+      /// <param name="type">The type that the delegate will build.</param>
+      /// <returns>
+      /// A delegate that can be used to build an instance 
+      /// of the given <paramref name="type"/>.
+      /// </returns>
+      Func<object> BuildDelegate(Type type);
+
       /// <summary>Check whether the given <paramref name="type"/> can be built.</summary>
       /// <param name="type">The type to check.</param>
       /// <returns>

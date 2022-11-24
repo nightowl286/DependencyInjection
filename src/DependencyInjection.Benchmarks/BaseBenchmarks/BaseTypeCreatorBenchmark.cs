@@ -9,6 +9,7 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
       #endregion
 
       #region Properties
+      public virtual bool ClassRequiredPrevious { get; }
       public abstract int Amount { get; set; }
       public List<Type> Types => _creator.Types;
       public List<Type> Interfaces => _creator.Interfaces;
@@ -16,7 +17,7 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
 
       #region Methods
       [GlobalSetup]
-      public virtual void Setup() => _creator.Create(Amount);
+      public virtual void Setup() => _creator.Create(Amount, ClassRequiredPrevious);
 
       [GlobalCleanup]
       public virtual void Cleanup() => _creator.Cleanup();
