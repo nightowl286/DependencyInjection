@@ -16,7 +16,7 @@
     <Title>Dependency Injection - Abstractions</Title>
     <Description>A library that provides the abstractions for dependency injection.</Description>
     <PackageTags>DI, dependency injection, abstractions</PackageTags>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
 </Project>
