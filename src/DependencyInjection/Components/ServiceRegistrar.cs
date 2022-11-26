@@ -1,4 +1,7 @@
-﻿using TNO.DependencyInjection.Abstractions;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using TNO.Common.Locking;
+using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Components.Registration;
 
@@ -8,10 +11,13 @@ namespace TNO.DependencyInjection.Components
    {
       #region Fields
       private readonly ServiceContext _context;
+      private ReferenceKey? _lockedWith;
+      private readonly object _lockingLock = new object();
       #endregion
 
       #region Properties
       public AppendValueMode DefaultRegistrationMode { get; }
+      public bool IsLocked { get; private set; }
       #endregion
       public ServiceRegistrar(ServiceContext context, AppendValueMode defaultMode = AppendValueMode.ReplaceAll)
       {
@@ -20,6 +26,44 @@ namespace TNO.DependencyInjection.Components
       }
 
       #region Methods
+      public bool TryLock([NotNullWhen(true)] out ReferenceKey? key)
+      {
+         lock (_lockingLock)
+         {
+            if (_lockedWith == null)
+            {
+               Debug.Assert(IsLocked == false);
+               key = _lockedWith = new ReferenceKey();
+               IsLocked = true;
+               return true;
+            }
+
+            key = null;
+            return false;
+         }
+      }
+      public bool TryUnlock(ReferenceKey key) // Todo(Anyone): Maybe this should return an enum instead;
+      {
+         lock (_lockingLock)
+         {
+            if (_lockedWith == null)
+            {
+               Debug.Assert(IsLocked == false);
+               return false;
+            }
+
+            Debug.Assert(IsLocked);
+            if (ReferenceEquals(_lockedWith, key))
+            {
+               IsLocked = false;
+               _lockedWith = null;
+               return true;
+            }
+
+            return false;
+         }
+      }
+
       public IServiceRegistrar Instance(Type serviceType, object instance, AppendValueMode? mode = null)
       {
          if (!serviceType.IsAssignableFrom(instance.GetType()))

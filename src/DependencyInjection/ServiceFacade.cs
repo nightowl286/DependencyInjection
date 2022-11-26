@@ -1,4 +1,6 @@
-﻿using TNO.DependencyInjection.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
+using TNO.Common.Locking;
+using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Abstractions.Explanations;
 using TNO.DependencyInjection.Components;
@@ -19,9 +21,12 @@ namespace TNO.DependencyInjection
       /// <inheritdoc/>
       public AppendValueMode DefaultRegistrationMode => _registrar.DefaultRegistrationMode;
 
+      /// <inheritdoc/>
+      public bool IsLocked => _registrar.IsLocked;
+      #endregion
+
       /// <summary>Creates a new instance of the <see cref="ServiceFacade"/> with the given <paramref name="defaultMode"/>.</summary>
       /// <param name="defaultMode">The default mode to use when registering new services.</param>
-      #endregion
       public ServiceFacade(AppendValueMode defaultMode = AppendValueMode.ReplaceAll) : this(defaultMode, null) { }
       private ServiceFacade(AppendValueMode defaultMode, ServiceContext? outerContext)
       {
@@ -33,6 +38,12 @@ namespace TNO.DependencyInjection
 
       #region Methods
       #region Registrar
+      /// <inheritdoc/>
+      public bool TryLock([NotNullWhen(true)] out ReferenceKey? key) => _registrar.TryLock(out key);
+
+      /// <inheritdoc/>
+      public bool TryUnlock(ReferenceKey key) => _registrar.TryUnlock(key);
+
       /// <inheritdoc/>
       public IServiceRegistrar PerRequest(Type serviceType, Type concreteType, AppendValueMode? mode = null) => _registrar.PerRequest(serviceType, concreteType, mode);
 
