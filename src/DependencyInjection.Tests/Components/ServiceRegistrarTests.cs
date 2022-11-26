@@ -2,6 +2,7 @@
 using TNO.Common.Locking;
 using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
+using TNO.DependencyInjection.Abstractions.Exceptions;
 using TNO.DependencyInjection.Components;
 using TNO.DependencyInjection.Components.Registration;
 
@@ -215,6 +216,21 @@ namespace TNO.DependencyInjection.Tests.Components
          // Assert
          Assert.That.NoExceptionIsThrown(act);
       }
+
+      [TestMethod]
+      public void Instance_WhileLocked_ThrowsRegistrarLockedException()
+      {
+         // Arrange
+         Type serviceType = typeof(object);
+         object instance = new object();
+         _ = LockSut();
+
+         // Act
+         void Act() => _sut.Instance(serviceType, instance);
+
+         // Assert
+         Assert.ThrowsException<RegistrarLockedException>(Act);
+      }
       #endregion
 
       #region Per Request
@@ -290,6 +306,21 @@ namespace TNO.DependencyInjection.Tests.Components
 
          // Assert
          Assert.That.NoExceptionIsThrown(act);
+      }
+
+      [TestMethod]
+      public void PerRequest_WhileLocked_ThrowsRegistrarLockedException()
+      {
+         // Arrange
+         Type serviceType = typeof(object);
+         Type concreteType = typeof(object);
+         _ = LockSut();
+
+         // Act
+         void Act() => _sut.PerRequest(serviceType, concreteType);
+
+         // Assert
+         Assert.ThrowsException<RegistrarLockedException>(Act);
       }
       #endregion
 
@@ -367,6 +398,21 @@ namespace TNO.DependencyInjection.Tests.Components
          // Assert
          Assert.That.NoExceptionIsThrown(act);
       }
+
+      [TestMethod]
+      public void Singleton_WhileLocked_ThrowsRegistrarLockedException()
+      {
+         // Arrange
+         Type serviceType = typeof(object);
+         Type concreteType = typeof(object);
+         _ = LockSut();
+
+         // Act
+         void Act() => _sut.Singleton(serviceType, concreteType);
+
+         // Assert
+         Assert.ThrowsException<RegistrarLockedException>(Act);
+      }
       #endregion
 
       #region Redirects
@@ -391,6 +437,19 @@ namespace TNO.DependencyInjection.Tests.Components
 
          // Assert
          _facadeMock.VerifyOnce(f => f.RegisterSelf());
+      }
+
+      [TestMethod]
+      public void RegisterSelf_WhileLocked_ThrowsRegistrarLockedException()
+      {
+         // Arrange
+         _ = LockSut();
+
+         // Act
+         void Act() => _sut.RegisterSelf();
+
+         // Assert
+         Assert.ThrowsException<RegistrarLockedException>(Act);
       }
 
       [DynamicData(nameof(GetAllRegistrationModes))]
@@ -425,6 +484,8 @@ namespace TNO.DependencyInjection.Tests.Components
       #region Helpers
       private ReferenceKey LockSut()
       {
+         Assert.That.IsInconclusiveIf(_sut.IsLocked);
+
          bool result = _sut.TryLock(out ReferenceKey? key);
 
          Assert.That.IsInconclusiveIf(key is null);
@@ -435,6 +496,8 @@ namespace TNO.DependencyInjection.Tests.Components
       }
       private void UnlockSut(ReferenceKey key)
       {
+         Assert.That.IsInconclusiveIfNot(_sut.IsLocked);
+
          bool result = _sut.TryUnlock(key);
 
          Assert.That.IsInconclusiveIfNot(result);

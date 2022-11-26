@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using TNO.Common.Locking;
 using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
+using TNO.DependencyInjection.Abstractions.Exceptions;
 using TNO.DependencyInjection.Components.Registration;
 
 namespace TNO.DependencyInjection.Components
@@ -30,9 +31,9 @@ namespace TNO.DependencyInjection.Components
       {
          lock (_lockingLock)
          {
-            if (_lockedWith == null)
+            if (IsLocked == false)
             {
-               Debug.Assert(IsLocked == false);
+               Debug.Assert(_lockedWith is null);
                key = _lockedWith = new ReferenceKey();
                IsLocked = true;
                return true;
@@ -46,13 +47,13 @@ namespace TNO.DependencyInjection.Components
       {
          lock (_lockingLock)
          {
-            if (_lockedWith == null)
+            if (IsLocked == false)
             {
-               Debug.Assert(IsLocked == false);
+               Debug.Assert(_lockedWith is null);
                return false;
             }
 
-            Debug.Assert(IsLocked);
+            Debug.Assert(_lockedWith is not null);
             if (ReferenceEquals(_lockedWith, key))
             {
                IsLocked = false;
@@ -66,6 +67,8 @@ namespace TNO.DependencyInjection.Components
 
       public IServiceRegistrar Instance(Type serviceType, object instance, AppendValueMode? mode = null)
       {
+         CheckLock();
+
          if (!serviceType.IsAssignableFrom(instance.GetType()))
             throw new ArgumentException($"The type of the given instance ({instance.GetType()}) cannot be assigned to the given service type ({serviceType}).");
 
@@ -76,6 +79,8 @@ namespace TNO.DependencyInjection.Components
       }
       public IServiceRegistrar PerRequest(Type serviceType, Type concreteType, AppendValueMode? mode = null)
       {
+         CheckLock();
+
          RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
 
          PerRequestRegistration registration = new PerRequestRegistration(concreteType);
@@ -85,6 +90,8 @@ namespace TNO.DependencyInjection.Components
       }
       public IServiceRegistrar Singleton(Type serviceType, Type concreteType, AppendValueMode? mode = null)
       {
+         CheckLock();
+
          RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
 
          RegistrationBase registration;
@@ -102,8 +109,18 @@ namespace TNO.DependencyInjection.Components
       public void Dispose() { }
       public IServiceRegistrar RegisterSelf()
       {
+         CheckLock();
+
          _context.Facade.RegisterSelf();
          return this;
+      }
+      #endregion
+
+      #region Helpers
+      private void CheckLock()
+      {
+         if (IsLocked)
+            throw new RegistrarLockedException();
       }
       #endregion
    }
