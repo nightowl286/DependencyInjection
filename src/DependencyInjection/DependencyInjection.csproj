@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TNO.Common" Version="1.0.3" />
+    <PackageReference Include="TNO.Common" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

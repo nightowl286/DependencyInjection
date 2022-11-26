@@ -19,4 +19,8 @@
     <Version>1.1.0</Version>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="TNO.Common" Version="1.1.0" />
+  </ItemGroup>
+
 </Project>

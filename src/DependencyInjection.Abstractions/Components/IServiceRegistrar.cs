@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using TNO.Common.Locking;
 
 namespace TNO.DependencyInjection.Abstractions.Components
 {
@@ -10,9 +12,22 @@ namespace TNO.DependencyInjection.Abstractions.Components
       #region Properties
       /// <summary>The default <see cref="AppendValueMode"/> to use when registering a new service.</summary>
       AppendValueMode DefaultRegistrationMode { get; }
+
+      /// <summary>Whether this registrar is locked or not.</summary>
+      bool IsLocked { get; }
       #endregion
 
       #region Methods
+      /// <summary>Attempts to lock this registrar so that no further registrations can be made.</summary>
+      /// <param name="key">The key that can be used to unlock this registrar.</param>
+      /// <returns><see langword="true"/> if locking was successful, <see langword="false"/> otherwise.</returns>
+      bool TryLock([NotNullWhen(true)] out ReferenceKey? key);
+
+      /// <summary>Attempts to unlock this registrar with the given <paramref name="key"/>.</summary>
+      /// <param name="key">The key to try and use.</param>
+      /// <returns><see langword="true"/> if unlocking was successful, <see langword="false"/> otherwise.</returns>
+      bool TryUnlock(ReferenceKey key);
+
       /// <summary>
       /// Registers the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>,
       /// where a new instance will be created each time <paramref name="serviceType"/> is requested.
