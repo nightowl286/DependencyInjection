@@ -62,11 +62,9 @@ namespace TNO.DependencyInjection.Abstractions.Components
       /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
       IServiceRegistrar Instance(Type serviceType, object instance, AppendValueMode? mode = null);
 
-      /// <summary>
-      /// Will register itself as being available in the dependency injection system.
-      /// This will likely register the following services.
-      /// </summary>
+      /// <summary>Will register itself as being available in the dependency injection system.</summary>
       /// <remarks>
+      /// This will likely register the following services.
       /// <list type="bullet">
       ///   <item><see cref="IServiceFacade"/></item>
       ///   <item><see cref="IServiceRegistrar"/></item>
