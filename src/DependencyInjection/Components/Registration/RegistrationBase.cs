@@ -4,6 +4,7 @@
    {
       #region Methods
       public abstract void Dispose();
+      public virtual void RemoveOptimisations() { }
       #endregion
    }
 }

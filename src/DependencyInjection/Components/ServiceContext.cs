@@ -22,6 +22,11 @@ namespace TNO.DependencyInjection.Components
       {
          Registrations.Dispose();
       }
+      public void RemoveOptimisations()
+      {
+         foreach (RegistrationBase registration in Registrations.GetAllValues())
+            registration.RemoveOptimisations();
+      }
       #endregion
    }
 }

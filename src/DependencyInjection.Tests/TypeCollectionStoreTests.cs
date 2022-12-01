@@ -151,6 +151,29 @@ namespace TNO.DependencyInjection.Tests
       }
 
       [TestMethod]
+      public void GetAll_WithMixedItemsAdded_ReturnsValuesForCorrectType()
+      {
+         // Arrange
+         Type type = typeof(object);
+         Type otherType = typeof(string);
+         object value = new object();
+         string otherValue = "test";
+
+         _sut.Add(type, value);
+         _sut.Add(otherType, otherValue);
+
+         // Act
+         IEnumerable<object> values = _sut.GetAll(type);
+
+         // Pre-Assert
+         object[] result = values.ToArray();
+
+         // Assert
+         Assert.AreEqual(1, result.Length);
+         Assert.AreEqual(value, result[0]);
+      }
+
+      [TestMethod]
       public void Contains_WithItem_ReturnsTrue()
       {
          // Arrange
@@ -216,6 +239,72 @@ namespace TNO.DependencyInjection.Tests
          // Assert
          disposable1.VerifyDisposed();
          disposable2.VerifyDisposed();
+      }
+
+      [TestMethod]
+      public void GetTypes_WithTypesAdd_ReturnsAllTypes()
+      {
+         // Arrange
+         Type type1 = typeof(object);
+         Type type2 = typeof(int);
+         Type type3 = typeof(string);
+         Type[] expected = new[] { type1, type2, type3 }; // order does not matter
+
+         _sut.Add(type1, new object());
+         _sut.Add(type2, new object());
+         _sut.Add(type3, new object());
+
+         // Act
+         IEnumerable<Type> types = _sut.GetTypes();
+
+         // Pre-Assert
+         Type[] result = types.ToArray();
+
+         // Assert
+         CollectionAssert.AreEquivalent(expected, result);
+      }
+
+      [TestMethod]
+      public void GetAllValues_OneValuePerKey_ReturnsAllValues()
+      {
+         // Arrange
+         object value1 = new object();
+         string value2 = "test";
+         object[] expected = new[] { value1, value2 };  // order does not matter
+
+         _sut.Add(value1.GetType(), value1);
+         _sut.Add(value2.GetType(), value2);
+
+         // Act
+         IEnumerable<object> values = _sut.GetAllValues();
+
+         // Pre-Assert
+         object[] result = values.ToArray();
+
+         // Assert
+         CollectionAssert.AreEquivalent(expected, result);
+      }
+
+      [TestMethod]
+      public void GetAllValues_MultipleValuesPerKey_ReturnsAllValues()
+      {
+         object value1 = new object();
+         object value2 = new object();
+         string value3 = "test1";
+         string value4 = "test2";
+         object[] expected = new[] { value1, value2, value3, value4 }; // order does not matter
+
+         foreach (object value in expected)
+            _sut.Add(value.GetType(), value, AppendValueMode.Append);
+
+         // Act
+         IEnumerable<object> values = _sut.GetAllValues();
+
+         // Pre-Assert
+         object[] result = values.ToArray();
+
+         // Assert
+         CollectionAssert.AreEquivalent(expected, result);
       }
    }
 }

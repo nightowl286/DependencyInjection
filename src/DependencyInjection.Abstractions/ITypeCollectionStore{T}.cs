@@ -39,6 +39,10 @@ namespace TNO.DependencyInjection.Abstractions
       /// <typeparam name="U">The type to retrieve the values for.</typeparam>
       IEnumerable<T> GetAll<U>() => GetAll(typeof(U));
 
+      /// <summary>Retrieves all the values that are stored in this collection.</summary>
+      /// <returns>An enumerable of all the stored values.</returns>
+      IEnumerable<T> GetAllValues();
+
       /// <summary>Tries to get the last value associated with the given <paramref name="type"/>.</summary>
       /// <param name="type">The type to retrieve the <paramref name="value"/> for.</param>
       /// <param name="value">
@@ -51,6 +55,10 @@ namespace TNO.DependencyInjection.Abstractions
       /// <inheritdoc cref="TryGet(Type, out T?)"/>
       /// <typeparam name="U">The type to retrieve the <paramref name="value"/> for.</typeparam>
       bool TryGet<U>([NotNullWhen(true)] out T? value) => TryGet(typeof(U), out value);
+
+      /// <summary>Get all the types that are used as keys.</summary>
+      /// <returns>An enumerable of the types.</returns>
+      IEnumerable<Type> GetTypes();
       #endregion
    }
 }

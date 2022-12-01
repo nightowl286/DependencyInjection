@@ -58,6 +58,16 @@ namespace TNO.DependencyInjection
       }
 
       /// <inheritdoc/>
+      public IEnumerable<T> GetAllValues()
+      {
+         foreach (List<T> values in _store.Values)
+         {
+            foreach (T value in values)
+               yield return value;
+         }   
+      }
+
+      /// <inheritdoc/>
       public bool TryGet(Type type, [NotNullWhen(true)] out T? value)
       {
          if (_store.TryGetValue(type, out List<T>? values))
@@ -74,6 +84,9 @@ namespace TNO.DependencyInjection
       }
 
       /// <inheritdoc/>
+      public IEnumerable<Type> GetTypes() => _store.Keys;
+
+      /// <inheritdoc/>
       protected override void DisposeManaged()
       {
          foreach (List<T> collection in _store.Values)
@@ -86,6 +99,7 @@ namespace TNO.DependencyInjection
 
          _store.Clear();
       }
+
       #endregion
    }
 }
