@@ -16,7 +16,7 @@
     <Title>Dependency Injection</Title>
     <Description>A library that provides the functionality needed for dependency injection.</Description>
     <PackageTags>DI, dependency injection</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
