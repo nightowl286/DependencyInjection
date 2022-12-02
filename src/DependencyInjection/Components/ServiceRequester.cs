@@ -68,7 +68,22 @@ namespace TNO.DependencyInjection.Components
             return genericInstance;
          }
          else if (registration is PerRequestRegistration perRequest)
+         {
+            if (_context.IsLocked)
+            {
+               Type actualType = GetActualType(type, perRequest.Type);
+
+               if (!perRequest.Optimisations.TryGetValue(actualType, out Func<object>? buildDelegate))
+               {
+                  buildDelegate = _context.Facade.BuildDelegate(actualType);
+                  perRequest.Optimisations.Add(actualType, buildDelegate);
+               }
+
+               return buildDelegate.Invoke();
+            }
+
             return Build(type, perRequest.Type);
+         }
 
          throw new NotSupportedException($"Unknown registration type ({registration.GetType()}).");
       }
@@ -139,13 +154,16 @@ namespace TNO.DependencyInjection.Components
          if (type.IsGenericTypeDefinition)
             throw new ArgumentException($"Could not get an instance of the given type ({type}) because it is a generic type definition.", nameof(type));
       }
+      private Type GetActualType(Type requestedType, Type concreteType)
+      {
+         if (CheckGenericType(requestedType, concreteType, out Type? constructedGeneric))
+            return constructedGeneric;
+         else
+            return concreteType;
+      }
       private object Build(Type requestedType, Type concreteType)
       {
-         Type type;
-         if (CheckGenericType(requestedType, concreteType, out Type? constructedGeneric))
-            type = constructedGeneric;
-         else
-            type = concreteType;
+         Type type = GetActualType(requestedType, concreteType);
 
          try
          {

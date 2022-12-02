@@ -4,11 +4,13 @@ using TNO.DependencyInjection;
 
 namespace DependencyInjection.Benchmarks.Benchmarks.Get
 {
-   public class GetPreRequestBenchmark : BaseGetBenchmark
+   [Config(typeof(AntiVirusFriendlyConfig))]
+   public class GetPerRequestBenchmark : BaseGetBenchmark
    {
       #region Properties
-      [Params(1, 10, 25, 50, 100, 250, 500, 1000)]
+      [Params(1, 10, 15, 25, 50, 75, 100, 150)]
       public override int Amount { get; set; }
+      public override bool ClassRequiredPrevious => true;
       #endregion
 
       public override void Register(ServiceFacade facade, Type classType, Type interfaceType)

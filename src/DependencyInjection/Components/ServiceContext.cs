@@ -9,6 +9,7 @@ namespace TNO.DependencyInjection.Components
       public IServiceFacade Facade { get; }
       public ServiceContext? OuterContext { get; }
       public TypeCollectionStore<RegistrationBase> Registrations { get; }
+      public bool IsLocked => Facade.IsLocked;
       #endregion
       public ServiceContext(IServiceFacade facade, ServiceContext? outerScope)
       {

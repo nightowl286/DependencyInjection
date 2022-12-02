@@ -1,5 +1,6 @@
-﻿using BenchmarkDotNet.Attributes;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using BenchmarkDotNet.Attributes;
+using TNO.Common.Locking;
 using TNO.DependencyInjection;
 
 namespace DependencyInjection.Benchmarks.BaseBenchmarks
@@ -10,6 +11,7 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
       private readonly ServiceFacade _serviceFacade = new ServiceFacade();
       private Type? _interfaceToRequest = null;
       private Type? _typeToRequest = null;
+      private ReferenceKey? _key;
       #endregion
 
       #region Properties
@@ -22,8 +24,8 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
       {
          base.Setup();
 
-         _interfaceToRequest = Interfaces[0];
-         _typeToRequest = Types[0];
+         _interfaceToRequest = Interfaces.Last();
+         _typeToRequest = Types.Last();
 
          for (int i = 0; i < Amount; i++)
          {
@@ -36,6 +38,20 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
 
       public abstract void Register(ServiceFacade facade, Type classType, Type interfaceType);
 
+      [GlobalSetup(Targets = new[] { nameof(ByInterfaceOptimised), nameof(ByTypeOptimised) })]
+      public void OptimisedSetup()
+      {
+         Setup();
+         _serviceFacade.TryLock(out _key);
+      }
+
+      [GlobalCleanup(Targets = new[] { nameof(ByInterfaceOptimised), nameof(ByTypeOptimised) })]
+      public void OptimisedCleanup()
+      {
+         Debug.Assert(_key is not null);
+         _serviceFacade.TryUnlock(_key);
+      }
+
       #region Benchmarks
 
       [Benchmark]
@@ -43,6 +59,12 @@ namespace DependencyInjection.Benchmarks.BaseBenchmarks
 
       [Benchmark]
       public virtual object ByType() => Facade.Get(TypeToRequest);
+
+      [Benchmark]
+      public virtual object ByInterfaceOptimised() => Facade.Get(InterfaceToRequest);
+
+      [Benchmark]
+      public virtual object ByTypeOptimised() => Facade.Get(TypeToRequest);
       #endregion
    }
 }
