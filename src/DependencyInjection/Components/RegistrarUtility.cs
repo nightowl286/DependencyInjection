@@ -10,7 +10,7 @@ namespace TNO.DependencyInjection.Components
          if (!concreteType.CanCreateInstance(true))
             throw new ArgumentException($"The given concrete type ({concreteType}) cannot be used to create an instance.", nameof(concreteType));
 
-         if ((serviceType.IsGenericTypeDefinition && !concreteType.IsGenericTypeDefinition) && mustImplement)
+         if (serviceType.IsGenericTypeDefinition && !concreteType.IsGenericTypeDefinition && mustImplement)
             throw new ArgumentException($"The given concrete type ({concreteType}) must be a generic definition if the given service type ({serviceType}) is a generic definition.", nameof(concreteType));
 
          if (!ImplementsType(concreteType, serviceType) && mustImplement)

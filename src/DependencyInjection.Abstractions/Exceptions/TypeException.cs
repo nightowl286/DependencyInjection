@@ -3,15 +3,15 @@ using System.Runtime.Serialization;
 
 namespace TNO.DependencyInjection.Abstractions.Exceptions
 {
-	/// <summary>
-	/// Represents errors about a given <see cref="Type"/>.
-	/// </summary>
-	[Serializable]
-	public class TypeException : Exception
-	{
+   /// <summary>
+   /// Represents errors about a given <see cref="Type"/>.
+   /// </summary>
+   [Serializable]
+   public class TypeException : Exception
+   {
       #region Properties
-		/// <summary>The <see cref="System.Type"/> that the exception is related to.</summary>
-		public Type Type { get; }
+      /// <summary>The <see cref="System.Type"/> that the exception is related to.</summary>
+      public Type Type { get; }
       #endregion
 
       #region Constructors

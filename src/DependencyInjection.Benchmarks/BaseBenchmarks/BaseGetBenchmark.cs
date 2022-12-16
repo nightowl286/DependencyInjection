@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
+using System.Diagnostics;
 using TNO.Common.Locking;
 using TNO.DependencyInjection;
 

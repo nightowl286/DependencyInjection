@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using DependencyInjection.Benchmarks.BaseBenchmarks;
+using System.Diagnostics;
 using TNO.DependencyInjection;
 
 namespace DependencyInjection.Benchmarks.Benchmarks
