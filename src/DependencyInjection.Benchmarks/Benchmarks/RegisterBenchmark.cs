@@ -2,40 +2,39 @@
 using DependencyInjection.Benchmarks.BaseBenchmarks;
 using TNO.DependencyInjection;
 
-namespace DependencyInjection.Benchmarks.Benchmarks
+namespace DependencyInjection.Benchmarks.Benchmarks;
+
+public class RegisterBenchmark : BaseTypeCreatorBenchmark
 {
-   public class RegisterBenchmark : BaseTypeCreatorBenchmark
+   #region Properties
+   [Params(1, 25, 50, 100)]
+   public override int Amount { get; set; }
+   #endregion
+
+   #region Benchmarks
+   [Benchmark]
+   public void Singleton()
    {
-      #region Properties
-      [Params(1, 25, 50, 100)]
-      public override int Amount { get; set; }
-      #endregion
+      ServiceFacade facade = new ServiceFacade();
 
-      #region Benchmarks
-      [Benchmark]
-      public void Singleton()
+      foreach (Type type in Types)
       {
-         ServiceFacade facade = new ServiceFacade();
-
-         foreach (Type type in Types)
-         {
-            facade.Singleton(type, type);
-         }
+         facade.Singleton(type, type);
       }
-
-      [Benchmark]
-      public void SingletonWithInterface()
-      {
-         ServiceFacade facade = new ServiceFacade();
-
-         for (int i = 0; i < Amount; i++)
-         {
-            Type classType = Types[i];
-            Type interfaceType = Interfaces[i];
-
-            facade.Singleton(interfaceType, classType);
-         }
-      }
-      #endregion
    }
+
+   [Benchmark]
+   public void SingletonWithInterface()
+   {
+      ServiceFacade facade = new ServiceFacade();
+
+      for (int i = 0; i < Amount; i++)
+      {
+         Type classType = Types[i];
+         Type interfaceType = Interfaces[i];
+
+         facade.Singleton(interfaceType, classType);
+      }
+   }
+   #endregion
 }

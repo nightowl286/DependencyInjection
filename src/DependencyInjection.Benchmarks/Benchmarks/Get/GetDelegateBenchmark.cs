@@ -1,6 +1,5 @@
-﻿namespace DependencyInjection.Benchmarks.Benchmarks.Get
+﻿namespace DependencyInjection.Benchmarks.Benchmarks.Get;
+
+internal class GetDelegateBenchmark
 {
-   internal class GetDelegateBenchmark
-   {
-   }
 }

@@ -1,68 +1,67 @@
 ﻿using System.Reflection;
 using System.Reflection.Emit;
 
-namespace DependencyInjection.Benchmarks
+namespace DependencyInjection.Benchmarks;
+
+public class TypeCreator
 {
-   public class TypeCreator
+   #region Properties
+   public List<Type> Types { get; } = new List<Type>();
+   public List<Type> Interfaces { get; } = new List<Type>();
+   public int Amount => Types.Count;
+   #endregion
+
+   #region Methods
+
+   public void Create(int amount, bool requirePrevious)
    {
-      #region Properties
-      public List<Type> Types { get; } = new List<Type>();
-      public List<Type> Interfaces { get; } = new List<Type>();
-      public int Amount => Types.Count;
-      #endregion
+      string name = "DynamicBenchmarkClasses";
+      AssemblyName assemblyName = new AssemblyName(name);
 
-      #region Methods
+      AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+      ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
-      public void Create(int amount, bool requirePrevious)
+      Cleanup();
+
+      ConstructorInfo objCtor = Type.GetType("System.Object")!.GetConstructor(Array.Empty<Type>())!;
+      for (int i = 1; i <= amount; i++)
       {
-         string name = "DynamicBenchmarkClasses";
-         AssemblyName assemblyName = new AssemblyName(name);
+         Type interfaceType = moduleBuilder
+            .DefineType($"DynamicBenchmarkInterface{i}", TypeAttributes.Interface | TypeAttributes.Public | TypeAttributes.Abstract)
+            .CreateType()
+            ?? throw new Exception("Couldn't create interface.");
 
-         AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-         ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
+         Interfaces.Add(interfaceType);
 
-         Cleanup();
+         TypeBuilder classTypeBuilder = moduleBuilder
+            .DefineType($"DynamicBenchmarkClass{i}", TypeAttributes.Class | TypeAttributes.Public, null, new[] { interfaceType });
 
-         ConstructorInfo objCtor = Type.GetType("System.Object")!.GetConstructor(Array.Empty<Type>())!;
-         for (int i = 1; i <= amount; i++)
+         if (requirePrevious && i > 1)
          {
-            Type interfaceType = moduleBuilder
-               .DefineType($"DynamicBenchmarkInterface{i}", TypeAttributes.Interface | TypeAttributes.Public | TypeAttributes.Abstract)
-               .CreateType()
-               ?? throw new Exception("Couldn't create interface.");
+            Type previous = Types[i - 2];
 
-            Interfaces.Add(interfaceType);
+            ConstructorBuilder constructorBuilder = classTypeBuilder
+               .DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new[] { previous });
 
-            TypeBuilder classTypeBuilder = moduleBuilder
-               .DefineType($"DynamicBenchmarkClass{i}", TypeAttributes.Class | TypeAttributes.Public, null, new[] { interfaceType });
+            ILGenerator gen = constructorBuilder.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
 
-            if (requirePrevious && i > 1)
-            {
-               Type previous = Types[i - 2];
+            gen.Emit(OpCodes.Call, objCtor);
 
-               ConstructorBuilder constructorBuilder = classTypeBuilder
-                  .DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, new[] { previous });
-
-               ILGenerator gen = constructorBuilder.GetILGenerator();
-               gen.Emit(OpCodes.Ldarg_0);
-
-               gen.Emit(OpCodes.Call, objCtor);
-
-               gen.Emit(OpCodes.Ret);
-            }
-
-            Type classType = classTypeBuilder.CreateType()
-               ?? throw new Exception("Couldn't create class.");
-
-            Types.Add(classType);
+            gen.Emit(OpCodes.Ret);
          }
-      }
 
-      public void Cleanup()
-      {
-         Types.Clear();
-         Interfaces.Clear();
+         Type classType = classTypeBuilder.CreateType()
+            ?? throw new Exception("Couldn't create class.");
+
+         Types.Add(classType);
       }
-      #endregion
    }
+
+   public void Cleanup()
+   {
+      Types.Clear();
+      Interfaces.Clear();
+   }
+   #endregion
 }
