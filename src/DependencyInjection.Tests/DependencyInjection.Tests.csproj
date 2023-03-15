@@ -23,7 +23,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="TNO.Tests.Common" Version="1.2.1" />
+    <PackageReference Include="TNO.Tests.Common" Version="1.2.3" />
     <PackageReference Include="TNO.Tests.Moq" Version="1.0.4" />
   </ItemGroup>
 

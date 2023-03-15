@@ -16,11 +16,11 @@
     <Title>Dependency Injection - Abstractions</Title>
     <Description>A library that provides the abstractions for dependency injection.</Description>
     <PackageTags>DI, dependency injection, abstractions</PackageTags>
-    <Version>1.2.1</Version>
+    <Version>1.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="TNO.Common" Version="1.2.3" />
+    <PackageReference Include="TNO.Common" Version="1.3.3" />
   </ItemGroup>
 
 </Project>

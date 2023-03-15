@@ -32,7 +32,7 @@ public class TypeCollectionStoreTests
 
       // Assert
       Assert.IsTrue(_sut._store.TryGetValue(type, out List<object>? collection));
-      Assert.AreEqual(1, collection.Count);
+      Assert.That.AreEqual(1, collection.Count);
       Assert.AreSame(value, collection[0]);
    }
 
@@ -144,7 +144,7 @@ public class TypeCollectionStoreTests
       object[] values = _sut.GetAll(type).ToArray();
 
       // Assert
-      Assert.AreEqual(3, values.Length);
+      Assert.That.AreEqual(3, values.Length);
       Assert.AreSame(first, values[0]);
       Assert.AreSame(second, values[1]);
       Assert.AreSame(third, values[2]);
@@ -169,8 +169,8 @@ public class TypeCollectionStoreTests
       object[] result = values.ToArray();
 
       // Assert
-      Assert.AreEqual(1, result.Length);
-      Assert.AreEqual(value, result[0]);
+      Assert.That.AreEqual(1, result.Length);
+      Assert.That.AreEqual(value, result[0]);
    }
 
    [TestMethod]
