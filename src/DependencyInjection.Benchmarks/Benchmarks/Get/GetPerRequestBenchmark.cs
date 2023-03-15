@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using DependencyInjection.Benchmarks.BaseBenchmarks;
-using TNO.DependencyInjection;
+using TNO.DependencyInjection.Abstractions.Components;
 
 namespace DependencyInjection.Benchmarks.Benchmarks.Get;
 
@@ -13,9 +13,9 @@ public class GetPerRequestBenchmark : BaseGetBenchmark
    public override bool ClassRequiredPrevious => true;
    #endregion
 
-   public override void Register(ServiceFacade facade, Type classType, Type interfaceType)
+   public override void Register(IServiceScope scope, Type classType, Type interfaceType)
    {
-      facade.PerRequest(classType, classType);
-      facade.PerRequest(interfaceType, classType);
+      scope.Registrar.PerRequest(classType, classType);
+      scope.Registrar.PerRequest(interfaceType, classType);
    }
 }

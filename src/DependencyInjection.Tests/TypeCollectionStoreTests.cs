@@ -4,7 +4,7 @@ using TNO.DependencyInjection.Abstractions;
 namespace TNO.DependencyInjection.Tests;
 
 [TestClass]
-[TestCategory(Category.Dependency_Injection)]
+[TestCategory(Category.DependencyInjection)]
 public class TypeCollectionStoreTests
 {
    #region Fields

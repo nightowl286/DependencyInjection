@@ -1,14 +1,14 @@
 ﻿using BenchmarkDotNet.Attributes;
 using DependencyInjection.Benchmarks.BaseBenchmarks;
 using System.Diagnostics;
-using TNO.DependencyInjection;
+using TNO.DependencyInjection.Components;
 
 namespace DependencyInjection.Benchmarks.Benchmarks;
 
 public class BuildBenchmark : BaseTypeCreatorBenchmark
 {
    #region Fields
-   private readonly ServiceFacade _serviceFacade = new ServiceFacade();
+   private readonly ServiceScope _serviceScope = new ServiceScope(null, TNO.DependencyInjection.Abstractions.AppendValueMode.ReplaceAll);
    private Type? _typeToBuild = null;
    private Func<object>? _buildDelegate = null;
    #endregion
@@ -28,11 +28,11 @@ public class BuildBenchmark : BaseTypeCreatorBenchmark
       {
          Type classType = Types[i];
 
-         _serviceFacade.PerRequest(classType, classType);
+         _serviceScope.Registrar.PerRequest(classType, classType);
       }
 
       _typeToBuild = Types.Last();
-      _buildDelegate = _serviceFacade.BuildDelegate(_typeToBuild);
+      _buildDelegate = _serviceScope.Builder.BuildDelegate(_typeToBuild);
    }
 
    #region Benchmarks
@@ -40,7 +40,7 @@ public class BuildBenchmark : BaseTypeCreatorBenchmark
    public object Build()
    {
       Debug.Assert(_typeToBuild is not null);
-      return _serviceFacade.Build(_typeToBuild);
+      return _serviceScope.Builder.Build(_typeToBuild);
    }
 
    [Benchmark]
@@ -48,7 +48,7 @@ public class BuildBenchmark : BaseTypeCreatorBenchmark
    {
       Debug.Assert(_typeToBuild is not null);
 
-      return _serviceFacade.BuildDelegate(_typeToBuild);
+      return _serviceScope.Builder.BuildDelegate(_typeToBuild);
    }
 
    [Benchmark]
@@ -56,7 +56,7 @@ public class BuildBenchmark : BaseTypeCreatorBenchmark
    {
       Debug.Assert(_typeToBuild is not null);
 
-      return _serviceFacade.BuildDelegate(_typeToBuild).Invoke();
+      return _serviceScope.Builder.BuildDelegate(_typeToBuild).Invoke();
    }
 
    [Benchmark]

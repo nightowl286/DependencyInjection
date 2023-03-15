@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using DependencyInjection.Benchmarks.BaseBenchmarks;
-using TNO.DependencyInjection;
+using TNO.DependencyInjection.Abstractions.Components;
 
 namespace DependencyInjection.Benchmarks.Benchmarks.Get;
 
@@ -11,11 +11,11 @@ public class GetInstanceBenchmark : BaseGetBenchmark
    public override int Amount { get; set; }
    #endregion
 
-   public override void Register(ServiceFacade facade, Type classType, Type interfaceType)
+   public override void Register(IServiceScope scope, Type classType, Type interfaceType)
    {
       object instance = Activator.CreateInstance(classType) ?? throw new Exception($"Couldn't create instance of type {classType}.");
 
-      facade.Instance(classType, instance);
-      facade.Instance(interfaceType, instance);
+      scope.Registrar.Instance(classType, instance);
+      scope.Registrar.Instance(interfaceType, instance);
    }
 }

@@ -9,11 +9,11 @@ namespace TNO.DependencyInjection.Components;
 internal sealed class ServiceRequester : IServiceRequester
 {
    #region Fields
-   private readonly ServiceContext _context;
+   private readonly ServiceScope _scope;
    #endregion
-   public ServiceRequester(ServiceContext context)
+   public ServiceRequester(ServiceScope scope)
    {
-      _context = context;
+      _scope = scope;
    }
 
    #region Methods
@@ -23,18 +23,18 @@ internal sealed class ServiceRequester : IServiceRequester
 
       try
       {
-         if (_context.Registrations.TryGet(type, out RegistrationBase? registration))
+         if (_scope.Registrations.TryGet(type, out RegistrationBase? registration))
             return Get(type, registration);
 
          if (type.IsConstructedGenericType)
          {
             Type genericTypeDefinition = type.GetGenericTypeDefinition();
-            if (_context.Registrations.TryGet(genericTypeDefinition, out registration))
+            if (_scope.Registrations.TryGet(genericTypeDefinition, out registration))
                return Get(type, registration);
          }
 
-         if (_context.OuterContext != null)
-            return _context.OuterContext.Facade.Get(type);
+         if (_scope.OuterScope != null)
+            return _scope.OuterScope.Requester.Get(type);
       }
       catch (Exception innerException)
       {
@@ -69,13 +69,13 @@ internal sealed class ServiceRequester : IServiceRequester
       }
       else if (registration is PerRequestRegistration perRequest)
       {
-         if (_context.IsLocked)
+         if (_scope.Registrar.IsLocked)
          {
             Type actualType = GetActualType(type, perRequest.Type);
 
             if (!perRequest.Optimisations.TryGetValue(actualType, out Func<object>? buildDelegate))
             {
-               buildDelegate = _context.Facade.BuildDelegate(actualType);
+               buildDelegate = _scope.Builder.BuildDelegate(actualType);
                perRequest.Optimisations.Add(actualType, buildDelegate);
             }
 
@@ -91,7 +91,7 @@ internal sealed class ServiceRequester : IServiceRequester
    {
       CheckRequestedType(type);
 
-      IEnumerable<RegistrationBase> registrations = _context.Registrations.GetAll(type);
+      IEnumerable<RegistrationBase> registrations = _scope.Registrations.GetAll(type);
       // Todo(Nightowl): Modify this to account for generics, should be a rare case that is not needed ATM;
 
       List<Exception>? aggregates = null;
@@ -122,8 +122,8 @@ internal sealed class ServiceRequester : IServiceRequester
          throw new ArgumentException($"Could not get all instances of the given type ({type}), check inner exception for more information.", nameof(type), innerException);
       }
 
-      if (_context.OuterContext is not null)
-         instances.AddRange(_context.OuterContext.Facade.GetAll(type));
+      if (_scope.OuterScope is not null)
+         instances.AddRange(_scope.OuterScope.Requester.GetAll(type));
 
       return instances;
    }
@@ -131,43 +131,29 @@ internal sealed class ServiceRequester : IServiceRequester
    {
       CheckRequestedType(type);
 
-      if (_context.Registrations.TryGet(type, out RegistrationBase? registration))
+      if (_scope.Registrations.TryGet(type, out RegistrationBase? registration))
          return Get(type, registration);
 
       if (type.IsConstructedGenericType)
       {
          Type genericTypeDefinition = type.GetGenericTypeDefinition();
-         if (_context.Registrations.TryGet(genericTypeDefinition, out registration))
+         if (_scope.Registrations.TryGet(genericTypeDefinition, out registration))
             return Get(type, registration);
       }
 
-      return _context.OuterContext?.Facade.GetOptional(type);
+      return _scope.OuterScope?.Requester.GetOptional(type);
    }
-   public bool IsRegistered(Type type) => _context.Facade.IsRegistered(type);
-   public IServiceFacade CreateScope(AppendValueMode? defaultMode = null) => _context.Facade.CreateScope(defaultMode);
-   public void Dispose() { }
+   public bool IsRegistered(Type type) => _scope.IsRegistered(type);
    #endregion
 
    #region Helpers
-   private static void CheckRequestedType(Type type)
-   {
-      if (type.IsGenericTypeDefinition)
-         throw new ArgumentException($"Could not get an instance of the given type ({type}) because it is a generic type definition.", nameof(type));
-   }
-   private Type GetActualType(Type requestedType, Type concreteType)
-   {
-      if (CheckGenericType(requestedType, concreteType, out Type? constructedGeneric))
-         return constructedGeneric;
-      else
-         return concreteType;
-   }
    private object Build(Type requestedType, Type concreteType)
    {
       Type type = GetActualType(requestedType, concreteType);
 
       try
       {
-         return _context.Facade.Build(type);
+         return _scope.Builder.Build(type);
       }
       catch (Exception innerException)
       {
@@ -176,6 +162,18 @@ internal sealed class ServiceRequester : IServiceRequester
 
          throw;
       }
+   }
+   private static void CheckRequestedType(Type type)
+   {
+      if (type.IsGenericTypeDefinition)
+         throw new ArgumentException($"Could not get an instance of the given type ({type}) because it is a generic type definition.", nameof(type));
+   }
+   private static Type GetActualType(Type requestedType, Type concreteType)
+   {
+      if (CheckGenericType(requestedType, concreteType, out Type? constructedGeneric))
+         return constructedGeneric;
+      else
+         return concreteType;
    }
    private static bool CheckGenericType(Type requestedType, Type concreteType, [NotNullWhen(true)] out Type? constructedGeneric)
    {

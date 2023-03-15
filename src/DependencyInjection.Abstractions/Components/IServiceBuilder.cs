@@ -7,7 +7,7 @@ namespace TNO.DependencyInjection.Abstractions.Components;
 /// Denotes a builder that is capable of injecting 
 /// registered services into constructors.
 /// </summary>
-public interface IServiceBuilder : IDisposable
+public interface IServiceBuilder : IServiceRegistrationChecker
 {
    #region Methods
    /// <summary>

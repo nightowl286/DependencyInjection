@@ -6,7 +6,7 @@ namespace TNO.DependencyInjection.Tests.Components.Extensions;
 [TestClass]
 [TestCategory(Category.Builder)]
 [TestCategory(Category.Extensions)]
-[TestCategory(Category.Dependency_Injection)]
+[TestCategory(Category.DependencyInjection)]
 public class ServiceBuilderExtensionTests
 {
    #region Fields

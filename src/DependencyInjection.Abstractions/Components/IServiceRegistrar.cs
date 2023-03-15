@@ -7,7 +7,7 @@ namespace TNO.DependencyInjection.Abstractions.Components;
 /// <summary>
 /// Denotes a registrar that can be used to register different kinds of services.
 /// </summary>
-public interface IServiceRegistrar : IServiceScope, IDisposable
+public interface IServiceRegistrar : IServiceRegistrationChecker
 {
    #region Properties
    /// <summary>The default <see cref="AppendValueMode"/> to use when registering a new service.</summary>
@@ -62,11 +62,11 @@ public interface IServiceRegistrar : IServiceScope, IDisposable
    /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
    IServiceRegistrar Instance(Type serviceType, object instance, AppendValueMode? mode = null);
 
-   /// <summary>Will register itself as being available in the dependency injection system.</summary>
+   /// <summary>Will register the service components as being available in the dependency injection system.</summary>
    /// <remarks>
    /// This will likely register the following services.
    /// <list type="bullet">
-   ///   <item><see cref="IServiceFacade"/></item>
+   ///   <item><see cref="IServiceScope"/></item>
    ///   <item><see cref="IServiceRegistrar"/></item>
    ///   <item><see cref="IServiceRequester"/></item>
    ///   <item><see cref="IServiceBuilder"/></item>
@@ -74,6 +74,6 @@ public interface IServiceRegistrar : IServiceScope, IDisposable
    /// </list>
    /// </remarks>
    /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
-   IServiceRegistrar RegisterSelf();
+   IServiceRegistrar RegisterComponents();
    #endregion
 }

@@ -12,11 +12,11 @@ namespace TNO.DependencyInjection.Components;
 internal sealed class ServiceBuilder : IServiceBuilder
 {
    #region Fields
-   private readonly ServiceContext _context;
+   private readonly IServiceScope _scope;
    #endregion
-   public ServiceBuilder(ServiceContext context)
+   public ServiceBuilder(IServiceScope scope)
    {
-      _context = context;
+      _scope = scope;
    }
 
    #region Methods
@@ -67,7 +67,7 @@ internal sealed class ServiceBuilder : IServiceBuilder
       }
    }
    public bool CanBuild(Type type) => TryFindInjectableConstructor(type, out _, out _);
-   public void Dispose() { }
+   public bool IsRegistered(Type serviceType) => _scope.IsRegistered(serviceType);
    private object BuildCore(Type type)
    {
       if (TryFindInjectableConstructor(type, out ConstructorInfo? injectable, out ConstructorInfo? ambiguousAgainst))
@@ -156,7 +156,7 @@ internal sealed class ServiceBuilder : IServiceBuilder
       if (!type.IsClass && !type.IsInterface)
          return new ParameterTypeExplanation(type, $"The type ({type}) is neither a class nor an interface.");
 
-      if (_context.Facade.IsRegistered(type))
+      if (IsRegistered(type))
          return null;
 
       if (IsEnumerableType(type, out _))
@@ -168,12 +168,12 @@ internal sealed class ServiceBuilder : IServiceBuilder
    private object? BuildParameter(ParameterInfo parameter)
    {
       Type parameterType = parameter.ParameterType;
-      if (_context.Facade.TryGet(parameterType, out object? instance))
+      if (_scope.Requester.TryGet(parameterType, out object? instance))
          return instance;
 
       if (IsEnumerableType(parameterType, out Type? elementType))
       {
-         IEnumerable<object> all = _context.Facade.GetAll(elementType);
+         IEnumerable<object> all = _scope.Requester.GetAll(elementType);
          return ConvertToEnumerableType(all, parameterType);
       }
 
@@ -185,12 +185,12 @@ internal sealed class ServiceBuilder : IServiceBuilder
    private Expression BuildParameterExpression(ParameterInfo parameter)
    {
       Type parameterType = parameter.ParameterType;
-      if (_context.Facade.IsRegistered(parameterType))
+      if (IsRegistered(parameterType))
       {
-         Expression instance = Expression.Constant(_context.Facade);
+         Expression instance = Expression.Constant(_scope.Requester);
          Expression get = Expression.Call(
             instance,
-            nameof(_context.Facade.Get),
+            nameof(_scope.Requester.Get),
             null,
             Expression.Constant(parameterType));
 
@@ -251,7 +251,7 @@ internal sealed class ServiceBuilder : IServiceBuilder
    }
    private bool IsTypeInjectable(Type type)
    {
-      if (_context.Facade.IsRegistered(type))
+      if (IsRegistered(type))
          return true;
 
       if (IsEnumerableType(type, out Type? elementType))

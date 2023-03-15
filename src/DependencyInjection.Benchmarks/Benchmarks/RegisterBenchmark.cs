@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using DependencyInjection.Benchmarks.BaseBenchmarks;
-using TNO.DependencyInjection;
+using TNO.DependencyInjection.Abstractions;
+using TNO.DependencyInjection.Components;
 
 namespace DependencyInjection.Benchmarks.Benchmarks;
 
@@ -15,25 +16,25 @@ public class RegisterBenchmark : BaseTypeCreatorBenchmark
    [Benchmark]
    public void Singleton()
    {
-      ServiceFacade facade = new ServiceFacade();
+      ServiceScope scope = new ServiceScope(null, AppendValueMode.ReplaceAll);
 
       foreach (Type type in Types)
       {
-         facade.Singleton(type, type);
+         scope.Registrar.Singleton(type, type);
       }
    }
 
    [Benchmark]
    public void SingletonWithInterface()
    {
-      ServiceFacade facade = new ServiceFacade();
+      ServiceScope scope = new ServiceScope(null, AppendValueMode.ReplaceAll);
 
       for (int i = 0; i < Amount; i++)
       {
          Type classType = Types[i];
          Type interfaceType = Interfaces[i];
 
-         facade.Singleton(interfaceType, classType);
+         scope.Registrar.Singleton(interfaceType, classType);
       }
    }
    #endregion

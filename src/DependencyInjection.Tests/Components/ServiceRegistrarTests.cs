@@ -1,5 +1,4 @@
-﻿using Moq;
-using TNO.Common.Locking;
+﻿using TNO.Common.Locking;
 using TNO.DependencyInjection.Abstractions;
 using TNO.DependencyInjection.Abstractions.Components;
 using TNO.DependencyInjection.Abstractions.Exceptions;
@@ -10,14 +9,13 @@ namespace TNO.DependencyInjection.Tests.Components;
 
 [TestClass]
 [TestCategory(Category.Registrar)]
-[TestCategory(Category.Dependency_Injection)]
-[TestCategory(Category.Dependency_Injection_Component)]
+[TestCategory(Category.DependencyInjection)]
+[TestCategory(Category.DependencyInjectionComponent)]
 public class ServiceRegistrarTests
 {
    #region Fields
-   private readonly Mock<IServiceFacade> _facadeMock;
    private readonly ServiceRegistrar _sut;
-   private readonly ServiceContext _context;
+   private readonly ServiceScope _scope;
    #endregion
 
    #region Dynamic Data Properties
@@ -30,10 +28,8 @@ public class ServiceRegistrarTests
 
    public ServiceRegistrarTests()
    {
-      _facadeMock = new Mock<IServiceFacade>();
-
-      _context = new ServiceContext(_facadeMock.Object, null);
-      _sut = new ServiceRegistrar(_context);
+      _scope = new ServiceScope(null, AppendValueMode.ReplaceAll);
+      _sut = new ServiceRegistrar(_scope);
    }
 
    #region Tests
@@ -151,13 +147,13 @@ public class ServiceRegistrarTests
       Type type = typeof(object);
 
       // Pre-Act Assert
-      Assert.That.IsInconclusiveIf(_context.Registrations.TryGet(type, out _));
+      Assert.That.IsInconclusiveIf(_scope.Registrations.TryGet(type, out _));
 
       // Act
       _sut.Instance(type, instance, registrationMode);
 
       // Pre-Assert
-      bool registered = _context.Registrations.TryGet(type, out RegistrationBase? registration);
+      bool registered = _scope.Registrations.TryGet(type, out RegistrationBase? registration);
 
       // Assert
       Assert.IsTrue(registered);
@@ -243,13 +239,13 @@ public class ServiceRegistrarTests
       Type type = typeof(object);
 
       // Pre-Act Assert
-      Assert.That.IsInconclusiveIf(_context.Registrations.TryGet(type, out _));
+      Assert.That.IsInconclusiveIf(_scope.Registrations.TryGet(type, out _));
 
       // Act
       _sut.PerRequest(type, type, registrationMode);
 
       // Pre-Assert
-      bool registered = _context.Registrations.TryGet(type, out RegistrationBase? registration);
+      bool registered = _scope.Registrations.TryGet(type, out RegistrationBase? registration);
 
       // Assert
       Assert.IsTrue(registered);
@@ -265,13 +261,13 @@ public class ServiceRegistrarTests
       Type type = typeof(GenericClass<>);
 
       // Pre-Act Assert
-      Assert.That.IsInconclusiveIf(_context.Registrations.TryGet(type, out _));
+      Assert.That.IsInconclusiveIf(_scope.Registrations.TryGet(type, out _));
 
       // Act
       _sut.PerRequest(type, type, registrationMode);
 
       // Pre-Assert
-      bool registered = _context.Registrations.TryGet(type, out RegistrationBase? registration);
+      bool registered = _scope.Registrations.TryGet(type, out RegistrationBase? registration);
 
       // Assert
       Assert.IsTrue(registered);
@@ -334,13 +330,13 @@ public class ServiceRegistrarTests
       Type type = typeof(object);
 
       // Pre-Act Assert
-      Assert.That.IsInconclusiveIf(_context.Registrations.TryGet(type, out _));
+      Assert.That.IsInconclusiveIf(_scope.Registrations.TryGet(type, out _));
 
       // Act
       _sut.Singleton(type, type, registrationMode);
 
       // Pre-Assert
-      bool registered = _context.Registrations.TryGet(type, out RegistrationBase? registration);
+      bool registered = _scope.Registrations.TryGet(type, out RegistrationBase? registration);
 
       // Assert
       Assert.IsTrue(registered);
@@ -356,13 +352,13 @@ public class ServiceRegistrarTests
       Type type = typeof(GenericClass<>);
 
       // Pre-Act Assert
-      Assert.That.IsInconclusiveIf(_context.Registrations.TryGet(type, out _));
+      Assert.That.IsInconclusiveIf(_scope.Registrations.TryGet(type, out _));
 
       // Act
       _sut.Singleton(type, type, registrationMode);
 
       // Pre-Assert
-      bool registered = _context.Registrations.TryGet(type, out RegistrationBase? registration);
+      bool registered = _scope.Registrations.TryGet(type, out RegistrationBase? registration);
 
       // Assert
       Assert.IsTrue(registered);
@@ -415,70 +411,18 @@ public class ServiceRegistrarTests
    }
    #endregion
 
-   #region Redirects
    [TestMethod]
-   public void IsRegistered_RedirectsCallToFacade()
-   {
-      // Arrange
-      Type type = typeof(object);
-
-      // Act
-      _ = _sut.IsRegistered(type);
-
-      // Assert
-      _facadeMock.VerifyOnce(f => f.IsRegistered(type));
-   }
-
-   [TestMethod]
-   public void RegisterSelf_RedirectsCallToFacade()
-   {
-      // Act
-      _sut.RegisterSelf();
-
-      // Assert
-      _facadeMock.VerifyOnce(f => f.RegisterSelf());
-   }
-
-   [TestMethod]
-   public void RegisterSelf_WhileLocked_ThrowsRegistrarLockedException()
+   public void RegisterComponents_WhileLocked_ThrowsRegistrarLockedException()
    {
       // Arrange
       _ = LockSut();
 
       // Act
-      void Act() => _sut.RegisterSelf();
+      void Act() => _sut.RegisterComponents();
 
       // Assert
       Assert.ThrowsException<RegistrarLockedException>(Act);
    }
-
-   [DynamicData(nameof(GetAllRegistrationModes))]
-   [TestMethod]
-   public void CreateScope_WithCustomRegistrationMode_RedirectsCallToFacade(AppendValueMode registrationMode)
-   {
-      // Pre-Act Assert
-      Assert.That.IsInconclusiveIf(registrationMode == _sut.DefaultRegistrationMode, $"The registration mode ({registrationMode}) cannot be tested as it is the default.");
-
-      // Act
-      _ = _sut.CreateScope(registrationMode);
-
-      // Assert
-      _facadeMock.VerifyOnce(f => f.CreateScope(registrationMode));
-   }
-
-   [TestMethod]
-   public void CreateScope_WithDefaultRegistrationMode_RedirectsCallToFacade()
-   {
-      // Arrange
-      AppendValueMode registrationMode = _sut.DefaultRegistrationMode;
-
-      // Act
-      _ = _sut.CreateScope();
-
-      // Assert
-      _facadeMock.VerifyOnce(f => f.CreateScope(registrationMode));
-   }
-   #endregion
    #endregion
 
    #region Helpers

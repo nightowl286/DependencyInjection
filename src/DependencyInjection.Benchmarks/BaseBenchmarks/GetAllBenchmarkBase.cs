@@ -3,15 +3,16 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using TNO.DependencyInjection;
 using TNO.DependencyInjection.Abstractions;
+using TNO.DependencyInjection.Abstractions.Components;
+using TNO.DependencyInjection.Components;
 
 namespace DependencyInjection.Benchmarks.BaseBenchmarks;
 
 public abstract class GetAllBenchmarkBase
 {
    #region Fields
-   private readonly ServiceFacade _serviceFacade = new ServiceFacade(AppendValueMode.Append);
+   private readonly ServiceScope _serviceScope = new ServiceScope(null, AppendValueMode.Append);
    private Type? _interfaceType;
    #endregion
 
@@ -42,7 +43,7 @@ public abstract class GetAllBenchmarkBase
             .CreateType()
             ?? throw new Exception("Couldn't create class.");
 
-         Register(_serviceFacade, classType, _interfaceType);
+         Register(_serviceScope, classType, _interfaceType);
       }
    }
 
@@ -52,14 +53,14 @@ public abstract class GetAllBenchmarkBase
       _interfaceType = null;
    }
 
-   protected abstract void Register(ServiceFacade facade, Type classType, Type interfaceType);
+   protected abstract void Register(IServiceScope serviceScope, Type classType, Type interfaceType);
 
    [MethodImpl(MethodImplOptions.AggressiveInlining)]
    private IEnumerable<object> GetEnumerable()
    {
       Debug.Assert(_interfaceType is not null);
 
-      IEnumerable<object> enumerable = _serviceFacade.GetAll(_interfaceType);
+      IEnumerable<object> enumerable = _serviceScope.Requester.GetAll(_interfaceType);
 
       return enumerable;
    }

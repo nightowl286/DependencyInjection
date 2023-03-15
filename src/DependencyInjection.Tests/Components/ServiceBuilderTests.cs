@@ -7,12 +7,12 @@ namespace TNO.DependencyInjection.Tests.Components;
 
 [TestClass]
 [TestCategory(Category.Builder)]
-[TestCategory(Category.Dependency_Injection)]
-[TestCategory(Category.Dependency_Injection_Component)]
+[TestCategory(Category.DependencyInjection)]
+[TestCategory(Category.DependencyInjectionComponent)]
 public class ServiceBuilderTests // most tests will require new dynamic data
 {
    #region Fields
-   private readonly IServiceFacade _facade;
+   private readonly ServiceScope _scope;
    private readonly ServiceBuilder _sut;
    #endregion
 
@@ -22,10 +22,9 @@ public class ServiceBuilderTests // most tests will require new dynamic data
    #endregion
    public ServiceBuilderTests()
    {
-      _facade = new ServiceFacade();
-      ServiceContext context = new ServiceContext(_facade, null);
+      _scope = new ServiceScope(null, AppendValueMode.ReplaceAll);
 
-      _sut = new ServiceBuilder(context);
+      _sut = new ServiceBuilder(_scope);
    }
 
    #region Tests
@@ -38,7 +37,7 @@ public class ServiceBuilderTests // most tests will require new dynamic data
    public void Build_WithValidType_ReturnsInstanceOfCorrectType(Type type)
    {
       // Arrange
-      _facade.PerRequest<Class>();
+      _scope.Registrar.PerRequest<Class>();
 
       // Act
       object instance = _sut.Build(type);
@@ -57,7 +56,7 @@ public class ServiceBuilderTests // most tests will require new dynamic data
    public void CanBuild_WithValidType_ReturnsTrue(Type type)
    {
       // Arrange
-      _facade.PerRequest<Class>();
+      _scope.Registrar.PerRequest<Class>();
 
       // Act
       bool canBuild = _sut.CanBuild(type);
@@ -99,7 +98,7 @@ public class ServiceBuilderTests // most tests will require new dynamic data
    {
       // Arrange
       Type type = typeof(ClassWithValidParameterType);
-      _facade.PerRequest<Class>();
+      _scope.Registrar.PerRequest<Class>();
 
       // Act
       ITypeExplanation? explanation = _sut.Explain(type);

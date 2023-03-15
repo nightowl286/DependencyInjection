@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using DependencyInjection.Benchmarks.BaseBenchmarks;
-using TNO.DependencyInjection;
+using TNO.DependencyInjection.Abstractions.Components;
 
 namespace DependencyInjection.Benchmarks.Benchmarks.Get;
 
@@ -11,5 +11,5 @@ public class GetAllSingletonBenchmark : GetAllBenchmarkBase
    public override int Amount { get; set; }
    #endregion
 
-   protected override void Register(ServiceFacade facade, Type classType, Type interfaceType) => facade.Singleton(interfaceType, classType);
+   protected override void Register(IServiceScope scope, Type classType, Type interfaceType) => scope.Registrar.Singleton(interfaceType, classType);
 }

@@ -10,11 +10,11 @@ global using TNO.Tests.Moq;
 
 internal static class Category
 {
-   public const string Dependency_Injection = "Dependency Injection";
-   public const string Dependency_Injection_Component = "DI Component";
+   public const string DependencyInjection = "Dependency Injection";
+   public const string DependencyInjectionComponent = "DI Component";
    public const string Extensions = "Extensions";
 
-   public const string Builder = "Builder";
-   public const string Requester = "Requester";
-   public const string Registrar = "Registrar";
+   public const string Builder = nameof(Builder);
+   public const string Requester = nameof(Requester);
+   public const string Registrar = nameof(Registrar);
 }

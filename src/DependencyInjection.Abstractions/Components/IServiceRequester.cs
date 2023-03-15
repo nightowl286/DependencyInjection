@@ -6,7 +6,7 @@ namespace TNO.DependencyInjection.Abstractions.Components;
 /// <summary>
 /// Denotes that the implementing type can be used to request services registered with an <see cref="IServiceRegistrar"/>.
 /// </summary>
-public interface IServiceRequester : IServiceProvider, IServiceScope, IDisposable
+public interface IServiceRequester : IServiceProvider, IServiceRegistrationChecker
 {
    #region Methods
    /// <summary>Requests an instance that was registered for the given <paramref name="type"/>.</summary>

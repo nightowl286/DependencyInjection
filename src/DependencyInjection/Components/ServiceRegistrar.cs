@@ -11,7 +11,7 @@ namespace TNO.DependencyInjection.Components;
 internal sealed class ServiceRegistrar : IServiceRegistrar
 {
    #region Fields
-   private readonly ServiceContext _context;
+   private readonly ServiceScope _scope;
    private ReferenceKey? _lockedWith;
    private readonly object _lockingLock = new object();
    #endregion
@@ -20,10 +20,10 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
    public AppendValueMode DefaultRegistrationMode { get; }
    public bool IsLocked { get; private set; }
    #endregion
-   public ServiceRegistrar(ServiceContext context, AppendValueMode defaultMode = AppendValueMode.ReplaceAll)
+   public ServiceRegistrar(ServiceScope scope, AppendValueMode defaultMode = AppendValueMode.ReplaceAll)
    {
       DefaultRegistrationMode = defaultMode;
-      _context = context;
+      _scope = scope;
    }
 
    #region Methods
@@ -73,7 +73,7 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
          throw new ArgumentException($"The type of the given instance ({instance.GetType()}) cannot be assigned to the given service type ({serviceType}).");
 
       InstanceRegistration registration = new InstanceRegistration(instance);
-      _context.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
+      _scope.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
 
       return this;
    }
@@ -84,7 +84,7 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
       RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
 
       PerRequestRegistration registration = new PerRequestRegistration(concreteType);
-      _context.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
+      _scope.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
 
       return this;
    }
@@ -100,18 +100,21 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
       else
          registration = new SingletonRegistration(concreteType);
 
-      _context.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
+      _scope.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
 
       return this;
    }
-   public bool IsRegistered(Type type) => _context.Facade.IsRegistered(type);
-   public IServiceFacade CreateScope(AppendValueMode? defaultMode = null) => _context.Facade.CreateScope(defaultMode ?? DefaultRegistrationMode);
-   public void Dispose() { }
-   public IServiceRegistrar RegisterSelf()
+   public bool IsRegistered(Type type) => _scope.IsRegistered(type);
+   public IServiceRegistrar RegisterComponents()
    {
       CheckLock();
 
-      _context.Facade.RegisterSelf();
+      Instance(typeof(IServiceRequester), _scope.Requester, AppendValueMode.ReplaceAll);
+      Instance(typeof(IServiceProvider), _scope.Requester, AppendValueMode.ReplaceAll);
+      Instance(typeof(IServiceBuilder), _scope.Builder, AppendValueMode.ReplaceAll);
+      Instance(typeof(IServiceRegistrar), _scope.Registrar, AppendValueMode.ReplaceAll);
+      Instance(typeof(IServiceScope), _scope, AppendValueMode.ReplaceAll);
+
       return this;
    }
    #endregion
