@@ -9,8 +9,13 @@ internal class DynamicDataProviders
    #region Dynamic data
    public static IEnumerable<object[]> GetAllRegistrationModes()
    {
+#if NET5_0_OR_GREATER
       foreach (AppendValueMode mode in Enum.GetValues<AppendValueMode>())
          yield return new object[] { mode };
+#else
+      foreach (AppendValueMode? mode in Enum.GetValues(typeof(AppendValueMode)))
+         yield return new object[] { mode!.Value };
+#endif
    }
 
    public static IEnumerable<object?[]> GetAllRegistrationModesAndNull()

@@ -16,6 +16,6 @@ internal static class RegistrarUtility
       if (!ImplementsType(concreteType, serviceType) && mustImplement)
          throw new ArgumentException($"The given concrete type ({concreteType}) does not implement the service type ({serviceType}).", nameof(concreteType));
    }
-   public static bool ImplementsType(Type concrete, Type service) => concrete.IsAssignableTo(service) || concrete.ImplementsOpenInterface(service);
+   public static bool ImplementsType(Type concrete, Type service) => service.IsAssignableFrom(concrete) || concrete.ImplementsOpenInterface(service);
    #endregion
 }

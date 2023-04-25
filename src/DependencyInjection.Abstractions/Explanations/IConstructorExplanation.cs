@@ -11,7 +11,7 @@ namespace TNO.DependencyInjection.Abstractions.Explanations;
 public interface IConstructorExplanation : IExplanation
 {
    #region Properties
-   /// <summary>The <see cref="ConstructorInfo"/> that is explanation is associated with.</summary>
+   /// <summary>The <see cref="ConstructorInfo"/> that this explanation is associated with.</summary>
    ConstructorInfo Constructor { get; }
 
    /// <summary>
