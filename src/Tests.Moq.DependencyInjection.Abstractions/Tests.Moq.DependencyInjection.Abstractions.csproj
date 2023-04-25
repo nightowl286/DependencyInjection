@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>11</LangVersion>
+    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>TNO.$(MSBuildProjectName)</AssemblyName>
@@ -15,6 +16,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Description>A library that provides helpful functionality in unit tests that make use of the DependencyInjection.Abstractions library.</Description>
     <PackageTags>di, dependency injection, unit tests</PackageTags>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
