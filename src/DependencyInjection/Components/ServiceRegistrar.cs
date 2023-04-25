@@ -43,14 +43,14 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
          return false;
       }
    }
-   public bool TryUnlock(ReferenceKey key) // Todo(Anyone): Maybe this should return an enum instead;
+   public UnlockResult TryUnlock(ReferenceKey key)
    {
       lock (_lockingLock)
       {
          if (IsLocked == false)
          {
             Debug.Assert(_lockedWith is null);
-            return false;
+            return UnlockResult.AlreadyUnlocked;
          }
 
          Debug.Assert(_lockedWith is not null);
@@ -58,10 +58,10 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
          {
             IsLocked = false;
             _lockedWith = null;
-            return true;
+            return UnlockResult.Unlocked;
          }
 
-         return false;
+         return UnlockResult.IncorrectKey;
       }
    }
 
@@ -79,28 +79,29 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
    }
    public IServiceRegistrar PerRequest(Type serviceType, Type concreteType, AppendValueMode? mode = null)
    {
-      CheckLock();
-
-      RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
-
-      PerRequestRegistration registration = new PerRequestRegistration(concreteType);
+      RegistrationBase registration = PerRequestBase(serviceType, concreteType);
       _scope.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
+
+      return this;
+   }
+   public IServiceRegistrar PerRequestIfMissing(Type serviceType, Type concreteType)
+   {
+      RegistrationBase registration = PerRequestBase(serviceType, concreteType);
+      _scope.Registrations.TryAdd(serviceType, registration);
 
       return this;
    }
    public IServiceRegistrar Singleton(Type serviceType, Type concreteType, AppendValueMode? mode = null)
    {
-      CheckLock();
-
-      RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
-
-      RegistrationBase registration;
-      if (concreteType.IsGenericTypeDefinition)
-         registration = new GenericSingletonRegistration(concreteType);
-      else
-         registration = new SingletonRegistration(concreteType);
-
+      RegistrationBase registration = SingletonBase(serviceType, concreteType);
       _scope.Registrations.Add(serviceType, registration, mode ?? DefaultRegistrationMode);
+
+      return this;
+   }
+   public IServiceRegistrar SingletonIfMissing(Type serviceType, Type concreteType)
+   {
+      RegistrationBase registration = SingletonBase(serviceType, concreteType);
+      _scope.Registrations.TryAdd(serviceType, registration);
 
       return this;
    }
@@ -124,6 +125,26 @@ internal sealed class ServiceRegistrar : IServiceRegistrar
    {
       if (IsLocked)
          throw new RegistrarLockedException();
+   }
+   private PerRequestRegistration PerRequestBase(Type serviceType, Type concreteType)
+   {
+      CheckLock();
+
+      RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
+
+      PerRequestRegistration registration = new PerRequestRegistration(concreteType);
+      return registration;
+   }
+   private RegistrationBase SingletonBase(Type serviceType, Type concreteType)
+   {
+      CheckLock();
+
+      RegistrarUtility.CheckTypeImplementation(serviceType, concreteType, true);
+
+      if (concreteType.IsGenericTypeDefinition)
+         return new GenericSingletonRegistration(concreteType);
+      else
+         return new SingletonRegistration(concreteType);
    }
    #endregion
 }

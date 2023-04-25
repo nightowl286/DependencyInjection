@@ -49,23 +49,55 @@ internal sealed class ServiceRequester : IServiceRequester
          return instance.Instance;
       else if (registration is SingletonRegistration singleton)
       {
-         if (singleton.Instance is not null)
-            return singleton.Instance;
+         singleton.Lock.EnterUpgradeableReadLock();
+         try
+         {
+            if (singleton.Instance is not null)
+               return singleton.Instance;
 
-         object singletonInstance = Build(type, singleton.Type);
+            singleton.Lock.EnterWriteLock();
+            try
+            {
+               object singletonInstance = Build(type, singleton.Type);
 
-         singleton.Instance = singletonInstance;
-         return singletonInstance;
+               singleton.Instance = singletonInstance;
+               return singletonInstance;
+            }
+            finally
+            {
+               singleton.Lock.ExitWriteLock();
+            }
+         }
+         finally
+         {
+            singleton.Lock.ExitUpgradeableReadLock();
+         }
       }
       else if (registration is GenericSingletonRegistration genericSingleton)
       {
-         if (genericSingleton.Instances.TryGet(type, out object? genericInstance))
-            return genericInstance;
+         genericSingleton.Lock.EnterUpgradeableReadLock();
+         try
+         {
+            if (genericSingleton.Instances.TryGet(type, out object? genericInstance))
+               return genericInstance;
 
-         genericInstance = Build(type, genericSingleton.Type);
+            genericSingleton.Lock.EnterWriteLock();
+            try
+            {
+               genericInstance = Build(type, genericSingleton.Type);
 
-         genericSingleton.Instances.Add(type, genericInstance, AppendValueMode.Append);
-         return genericInstance;
+               genericSingleton.Instances.Add(type, genericInstance, AppendValueMode.Append);
+               return genericInstance;
+            }
+            finally
+            {
+               genericSingleton.Lock.ExitWriteLock();
+            }
+         }
+         finally
+         {
+            genericSingleton.Lock.ExitUpgradeableReadLock();
+         }
       }
       else if (registration is PerRequestRegistration perRequest)
       {

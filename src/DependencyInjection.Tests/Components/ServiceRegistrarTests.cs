@@ -56,10 +56,10 @@ public class ServiceRegistrarTests
       ReferenceKey key = LockSut();
 
       // Act
-      bool result = _sut.TryUnlock(key);
+      UnlockResult result = _sut.TryUnlock(key);
 
       // Assert
-      Assert.IsTrue(result);
+      Assert.That.AreEqual(UnlockResult.Unlocked, result);
       Assert.IsFalse(_sut.IsLocked);
    }
 
@@ -83,18 +83,18 @@ public class ServiceRegistrarTests
    {
       // Arrange
       ReferenceKey key = LockSut();
-      bool arrangeResult = _sut.TryUnlock(key);
+      UnlockResult arrangeResult = _sut.TryUnlock(key);
 
       // Arrange Assert
-      Assert.That.IsInconclusiveIfNot(arrangeResult);
+      Assert.That.IsInconclusiveIf(arrangeResult != UnlockResult.Unlocked);
       Assert.That.IsInconclusiveIf(_sut.IsLocked);
 
       // Act
-      bool result = _sut.TryUnlock(key);
+      UnlockResult result = _sut.TryUnlock(key);
 
       // Assert
-      Assert.IsFalse(result);
-      Assert.IsFalse(_sut.IsLocked);
+      Assert.That.AreEqual(UnlockResult.AlreadyUnlocked, result);
+      Assert.That.IsFalse(_sut.IsLocked);
    }
 
    [TestMethod]
@@ -128,10 +128,10 @@ public class ServiceRegistrarTests
       Assert.That.IsInconclusiveIf(ReferenceEquals(badKey, goodKey));
 
       // Act
-      bool result = _sut.TryUnlock(badKey);
+      UnlockResult result = _sut.TryUnlock(badKey);
 
       // Assert
-      Assert.IsFalse(result);
+      Assert.That.AreEqual(UnlockResult.IncorrectKey, result);
       Assert.IsTrue(_sut.IsLocked);
    }
    #endregion
@@ -320,6 +320,126 @@ public class ServiceRegistrarTests
    }
    #endregion
 
+   #region Per Request If Missing
+   [TestMethod]
+   public void PerRequestIfMissing_WithServiceAndConcrete_Successful()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      _sut.PerRequestIfMissing(serviceType, concreteType);
+
+      // Assert
+      _sut.IsRegistered(serviceType);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithServiceAndConcrete_NoAction()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+      Type concreteType = typeof(ClassWithInterface);
+      object expected = new ClassWithInterface();
+
+      _sut.Instance(serviceType, expected);
+
+      // Act
+      _sut.PerRequestIfMissing(serviceType, concreteType);
+
+      // Assert
+      object result = _scope.Requester.Get(serviceType);
+      Assert.AreSame(expected, result);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithGenericServiceAndConcrete_Successful()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+
+      // Act
+      _sut.PerRequestIfMissing<IInterfaceForClass, ClassWithInterface>();
+
+      // Assert
+      _sut.IsRegistered(serviceType);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithGenericServiceAndConcrete_NoAction()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+
+      ClassWithInterface expected = new ClassWithInterface();
+      _sut.Instance(serviceType, expected);
+
+      // Act
+      _sut.PerRequestIfMissing<IInterfaceForClass, ClassWithInterface>();
+
+      // Assert
+      object result = _scope.Requester.Get(serviceType);
+      Assert.AreSame(expected, result);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithConcrete_Successful()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      ServiceRegistrarExtensions.PerRequestIfMissing(_sut, concreteType);
+
+      // Assert
+      _sut.IsRegistered(concreteType);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithConcrete_NoAction()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+      object expected = new ClassWithInterface();
+
+      _sut.Instance(concreteType, expected);
+
+      // Act
+      _sut.PerRequestIfMissing(concreteType);
+
+      // Assert
+      object result = _scope.Requester.Get(concreteType);
+      Assert.AreSame(expected, result);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithGenericConcrete_Successful()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      _sut.PerRequestIfMissing<ClassWithInterface>();
+
+      // Assert
+      _sut.IsRegistered(concreteType);
+   }
+
+   [TestMethod]
+   public void PerRequestIfMissing_WithGenericConcrete_NoAction()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      _sut.PerRequestIfMissing<ClassWithInterface>();
+
+      // Assert
+      _sut.IsRegistered(concreteType);
+   }
+   #endregion
+
    #region Singleton
    [DynamicData(nameof(GetAllRegistrationModes))]
    [TestMethod]
@@ -411,6 +531,130 @@ public class ServiceRegistrarTests
    }
    #endregion
 
+   #region Singleton If Missing
+   [TestMethod]
+   public void SingletonIfMissing_WithServiceAndConcrete_Successful()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      _sut.SingletonIfMissing(serviceType, concreteType);
+
+      // Assert
+      _sut.IsRegistered(serviceType);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithServiceAndConcrete_NoAction()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+      Type concreteType = typeof(ClassWithInterface);
+      object expected = new ClassWithInterface();
+
+      _sut.Instance(serviceType, expected);
+
+      // Act
+      _sut.SingletonIfMissing(serviceType, concreteType);
+
+      // Assert
+      object result = _scope.Requester.Get(serviceType);
+      Assert.AreSame(expected, result);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithGenericServiceAndConcrete_Successful()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+
+      // Act
+      _sut.SingletonIfMissing<IInterfaceForClass, ClassWithInterface>();
+
+      // Assert
+      _sut.IsRegistered(serviceType);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithGenericServiceAndConcrete_NoAction()
+   {
+      // Assert
+      Type serviceType = typeof(IInterfaceForClass);
+      object expected = new ClassWithInterface();
+
+      _sut.Instance(serviceType, expected);
+
+      // Act
+      _sut.SingletonIfMissing<IInterfaceForClass, ClassWithInterface>();
+
+      // Assert
+      object result = _scope.Requester.Get(serviceType);
+      Assert.AreSame(expected, result);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithConcrete_Successful()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      _sut.SingletonIfMissing(concreteType);
+
+      // Assert
+      _sut.IsRegistered(concreteType);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithConcrete_NoAction()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+      object expected = new ClassWithInterface();
+
+      _sut.Instance(concreteType, expected);
+
+      // Act
+      _sut.SingletonIfMissing(concreteType);
+
+      // Assert
+      object result = _scope.Requester.Get(concreteType);
+      Assert.AreSame(expected, result);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithGenericConcrete_Successful()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+
+      // Act
+      _sut.SingletonIfMissing<ClassWithInterface>();
+
+      // Assert
+      _sut.IsRegistered(concreteType);
+   }
+
+   [TestMethod]
+   public void SingletonIfMissing_WithGenericConcrete_NoAction()
+   {
+      // Assert
+      Type concreteType = typeof(ClassWithInterface);
+      object expected = new ClassWithInterface();
+
+      _sut.Instance(concreteType, expected);
+
+      // Act
+      _sut.SingletonIfMissing<ClassWithInterface>();
+
+      // Assert
+      object result = _scope.Requester.Get(concreteType);
+      Assert.AreEqual(expected, result);
+   }
+   #endregion
+
    [TestMethod]
    public void RegisterComponents_WhileLocked_ThrowsRegistrarLockedException()
    {
@@ -442,9 +686,9 @@ public class ServiceRegistrarTests
    {
       Assert.That.IsInconclusiveIfNot(_sut.IsLocked);
 
-      bool result = _sut.TryUnlock(key);
+      UnlockResult result = _sut.TryUnlock(key);
 
-      Assert.That.IsInconclusiveIfNot(result);
+      Assert.That.IsInconclusiveIf(result == UnlockResult.IncorrectKey);
       Assert.That.IsInconclusiveIf(_sut.IsLocked);
    }
    #endregion

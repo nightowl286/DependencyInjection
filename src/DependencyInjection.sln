@@ -15,7 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{54BD732A-E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Playground", "misc\Playground\Playground.csproj", "{4ADFC59E-43F7-4E9F-B2A0-810315F71F30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Moq.DependencyInjection.Abstractions", "Tests.Moq.DependencyInjection.Abstractions\Tests.Moq.DependencyInjection.Abstractions.csproj", "{AAE81805-C128-41C3-885C-88C123F2E4C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Moq.DependencyInjection.Abstractions", "Tests.Moq.DependencyInjection.Abstractions\Tests.Moq.DependencyInjection.Abstractions.csproj", "{AAE81805-C128-41C3-885C-88C123F2E4C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependencyInjection.ThreadTests", "DependencyInjection.ThreadTests\DependencyInjection.ThreadTests.csproj", "{8CAC0FCC-0CDA-4D68-BBD5-EE7F287CB5F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{AAE81805-C128-41C3-885C-88C123F2E4C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAE81805-C128-41C3-885C-88C123F2E4C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAE81805-C128-41C3-885C-88C123F2E4C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CAC0FCC-0CDA-4D68-BBD5-EE7F287CB5F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CAC0FCC-0CDA-4D68-BBD5-EE7F287CB5F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CAC0FCC-0CDA-4D68-BBD5-EE7F287CB5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CAC0FCC-0CDA-4D68-BBD5-EE7F287CB5F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

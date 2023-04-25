@@ -30,18 +30,31 @@ public interface ITypeCollectionStore<T> : IDisposable where T : notnull
    /// <typeparam name="U">The type to use as the key.</typeparam>
    void Add<U>(T value, AppendValueMode appendValueMode = AppendValueMode.ReplaceAll) => Add(typeof(U), value, appendValueMode);
 
+   /// <summary>
+   /// Tries to add the given <paramref name="type"/>/<paramref name="value"/> pair to 
+   /// this collection, if the given <paramref name="type"/> has not been added yet.
+   /// </summary>
+   /// <param name="type">The type to use as the key.</param>
+   /// <param name="value">The value to associate with the given <paramref name="type"/>.</param>
+   /// <returns><see langword="true"/> if the pair was successfully added, <see langword="false"/> otherwise.</returns>
+   bool TryAdd(Type type, T value);
+
+   /// <inheritdoc cref="TryAdd(Type, T)"/>
+   /// <typeparam name="U">The type to use as the key.</typeparam>
+   bool TryAdd<U>(T value) => TryAdd(typeof(U), value);
+
    /// <summary>Retrieves all the values that are associated with the given <paramref name="type"/>.</summary>
    /// <param name="type">The type to retrieves the values for.</param>
    /// <returns>An enumerable of the values associated with the given <paramref name="type"/>.</returns>
-   IEnumerable<T> GetAll(Type type);
+   IReadOnlyCollection<T> GetAll(Type type);
 
    /// <inheritdoc cref="GetAll(Type)"/>
    /// <typeparam name="U">The type to retrieve the values for.</typeparam>
-   IEnumerable<T> GetAll<U>() => GetAll(typeof(U));
+   IReadOnlyCollection<T> GetAll<U>() => GetAll(typeof(U));
 
    /// <summary>Retrieves all the values that are stored in this collection.</summary>
    /// <returns>An enumerable of all the stored values.</returns>
-   IEnumerable<T> GetAllValues();
+   IReadOnlyCollection<T> GetAllValues();
 
    /// <summary>Tries to get the last value associated with the given <paramref name="type"/>.</summary>
    /// <param name="type">The type to retrieve the <paramref name="value"/> for.</param>
@@ -58,6 +71,6 @@ public interface ITypeCollectionStore<T> : IDisposable where T : notnull
 
    /// <summary>Get all the types that are used as keys.</summary>
    /// <returns>An enumerable of the types.</returns>
-   IEnumerable<Type> GetTypes();
+   IReadOnlyCollection<Type> GetTypes();
    #endregion
 }

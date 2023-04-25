@@ -11,72 +11,141 @@ namespace TNO.DependencyInjection;
 public class TypeCollectionStore<T> : DisposableBase, ITypeCollectionStore<T> where T : notnull
 {
    #region Fields
+   private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+
    [TestOnly(AccessModifiers.Private)]
    internal readonly Dictionary<Type, List<T>> _store = new Dictionary<Type, List<T>>();
    #endregion
 
    #region Methods
    /// <inheritdoc/>
-   public bool Contains(Type type) => _store.ContainsKey(type);
+   public bool Contains(Type type)
+   {
+      _lock.EnterReadLock();
+      try
+      {
+         return _store.ContainsKey(type);
+      }
+      finally
+      {
+         _lock.ExitReadLock();
+      }
+   }
 
    /// <inheritdoc/>
    public void Add(Type type, T value, AppendValueMode appendValueMode = AppendValueMode.ReplaceAll)
    {
-      if (!_store.TryGetValue(type, out List<T>? collection))
+      _lock.EnterWriteLock();
+      try
       {
-         collection = new List<T>();
+         if (_store.TryGetValue(type, out List<T>? collection) == false)
+         {
+            collection = new List<T>() { value };
+            _store.Add(type, collection);
+
+            return;
+         }
+
+         if ((appendValueMode == AppendValueMode.ReplaceLatest && collection.Count > 0)
+            || (appendValueMode == AppendValueMode.ReplaceAll && collection.Count == 1))
+         {
+            collection[^1].TryDispose();
+            collection[^1] = value;
+         }
+         else if (appendValueMode == AppendValueMode.ReplaceAll && collection.Count > 0)
+         {
+            foreach (T collectionValue in collection)
+               collectionValue.TryDispose();
+
+            collection.Clear();
+
+            collection.Add(value);
+         }
+         else
+            collection.Add(value);
+      }
+      finally
+      {
+         _lock.ExitWriteLock();
+      }
+   }
+
+   /// <inheritdoc/>
+   public bool TryAdd(Type type, T value)
+   {
+      _lock.EnterUpgradeableReadLock();
+      try
+      {
+         if (_store.ContainsKey(type))
+            return false;
+
+         List<T> collection = new List<T>() { value };
          _store.Add(type, collection);
+
+         return true;
       }
-
-      if ((appendValueMode == AppendValueMode.ReplaceLatest && collection.Count > 0)
-         || (appendValueMode == AppendValueMode.ReplaceAll && collection.Count == 1))
+      finally
       {
-         collection[^1].TryDispose();
-         collection[^1] = value;
-      }
-      else if (appendValueMode == AppendValueMode.ReplaceAll && collection.Count > 0)
-      {
-         foreach (T collectionValue in collection)
-            collectionValue.TryDispose();
-
-         collection.Clear();
-
-         collection.Add(value);
-      }
-      else
-         collection.Add(value);
-   }
-
-   /// <inheritdoc/>
-   public IEnumerable<T> GetAll(Type type)
-   {
-      if (_store.TryGetValue(type, out List<T>? values))
-      {
-         foreach (T value in values)
-            yield return value;
+         _lock.ExitUpgradeableReadLock();
       }
    }
 
    /// <inheritdoc/>
-   public IEnumerable<T> GetAllValues()
+   public IReadOnlyCollection<T> GetAll(Type type)
    {
-      foreach (List<T> values in _store.Values)
+      _lock.EnterReadLock();
+      try
       {
-         foreach (T value in values)
-            yield return value;
+         if (_store.TryGetValue(type, out List<T>? values))
+            return values;
+
+         return Array.Empty<T>();
+      }
+      finally
+      {
+         _lock.ExitReadLock();
+      }
+   }
+
+   /// <inheritdoc/>
+   public IReadOnlyCollection<T> GetAllValues()
+   {
+      _lock.EnterReadLock();
+      try
+      {
+         List<T> allValues = new List<T>();
+         foreach (List<T> values in _store.Values)
+         {
+            foreach (T value in values)
+               allValues.Add(value);
+         }
+
+         return allValues;
+      }
+      finally
+      {
+         _lock.ExitReadLock();
       }
    }
 
    /// <inheritdoc/>
    public bool TryGet(Type type, [NotNullWhen(true)] out T? value)
    {
-      if (_store.TryGetValue(type, out List<T>? values))
+      _lock.EnterReadLock();
+      try
       {
-         if (values.Count > 0)
+         if (_store.TryGetValue(type, out List<T>? values))
          {
-            value = values[^1];
-            return true;
+            if (values.Count > 0)
+            {
+               value = values[^1];
+               return true;
+            }
          }
+      }
+      finally
+      {
+         _lock.ExitReadLock();
       }
 
       value = default;
@@ -84,21 +153,39 @@ public class TypeCollectionStore<T> : DisposableBase, ITypeCollectionStore<T> wh
    }
 
    /// <inheritdoc/>
-   public IEnumerable<Type> GetTypes() => _store.Keys;
+   public IReadOnlyCollection<Type> GetTypes()
+   {
+      _lock.EnterReadLock();
+      try
+      {
+         return _store.Keys.ToList();
+      }
+      finally
+      {
+         _lock.ExitReadLock();
+      }
+   }
 
    /// <inheritdoc/>
    protected override void DisposeManaged()
    {
-      foreach (List<T> collection in _store.Values)
+      _lock.EnterWriteLock();
+      try
       {
-         Debug.Assert(collection is not null);
+         foreach (List<T> collection in _store.Values)
+         {
+            Debug.Assert(collection is not null);
 
-         foreach (T value in collection)
-            value.TryDispose();
+            foreach (T value in collection)
+               value.TryDispose();
+         }
+
+         _store.Clear();
       }
-
-      _store.Clear();
+      finally
+      {
+         _lock.ExitWriteLock();
+      }
    }
-
    #endregion
 }

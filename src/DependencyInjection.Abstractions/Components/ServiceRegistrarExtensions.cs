@@ -117,29 +117,14 @@ public static class ServiceRegistrarExtensions
 
    #region PerRequest If Missing
    /// <summary>
-   /// Tries to register the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>, if it has not
-   /// been registered already, where a new instance will be created each time <paramref name="serviceType"/> is requested.
-   /// </summary>
-   /// <param name="registrar">The registrar instance to use.</param>
-   /// <param name="serviceType">The type that can be used to retrieve an instance of the given <paramref name="concreteType"/>.</param>
-   /// <param name="concreteType">The type of the instance that will be created.</param>
-   /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
-   public static IServiceRegistrar PerRequestIfMissing(this IServiceRegistrar registrar, Type serviceType, Type concreteType)
-   {
-      if (!registrar.IsRegistered(serviceType))
-         registrar.PerRequest(serviceType, concreteType);
-
-      return registrar;
-   }
-
-   /// <summary>
    /// Registers the given <paramref name="concreteType"/> type as itself, if it has not been registered 
    /// already, where a new instance will be created each time <paramref name="concreteType"/> is requested.
    /// </summary>
    /// <param name="registrar">The registrar instance to use.</param>
    /// <param name="concreteType">The type of the instance that will be created.</param>
    /// <inheritdoc cref="PerRequest{TService, TConcrete}(IServiceRegistrar, AppendValueMode?)"/>
-   public static IServiceRegistrar PerRequestIfMissing(this IServiceRegistrar registrar, Type concreteType) => PerRequestIfMissing(registrar, concreteType, concreteType);
+   public static IServiceRegistrar PerRequestIfMissing(this IServiceRegistrar registrar, Type concreteType)
+      => registrar.PerRequestIfMissing(concreteType, concreteType);
 
    /// <summary>
    /// Registers the <typeparamref name="TConcrete"/> type as the <typeparamref name="TService"/> type,
@@ -152,7 +137,7 @@ public static class ServiceRegistrarExtensions
    public static IServiceRegistrar PerRequestIfMissing<TService, TConcrete>(this IServiceRegistrar registrar)
       where TService : notnull
       where TConcrete : notnull, TService
-      => PerRequestIfMissing(registrar, typeof(TService), typeof(TConcrete));
+      => registrar.PerRequestIfMissing(typeof(TService), typeof(TConcrete));
 
    /// <summary>
    /// Registers the <typeparamref name="TConcrete"/> type as itself, if it has not bee registered already,
@@ -162,34 +147,18 @@ public static class ServiceRegistrarExtensions
    /// <inheritdoc cref="PerRequestIfMissing{TService, TConcrete}(IServiceRegistrar)"/>
    public static IServiceRegistrar PerRequestIfMissing<TConcrete>(this IServiceRegistrar registrar)
       where TConcrete : notnull
-      => PerRequestIfMissing(registrar, typeof(TConcrete), typeof(TConcrete));
+      => registrar.PerRequestIfMissing(typeof(TConcrete), typeof(TConcrete));
    #endregion
 
    #region Singleton If Missing
-   /// <summary>
-   /// Registers the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>, if it has not
-   /// been registered already, where a single instance will be created when <paramref name="serviceType"/>
-   /// is requested, and then cached and reused for any following requests.
-   /// </summary>
-   /// <param name="registrar">The registrar instance to use.</param>
-   /// <param name="serviceType">The type that can be used to retrieve an instance of the given <paramref name="concreteType"/>.</param>
-   /// <param name="concreteType">The type of the instance that will be created.</param>
-   /// <inheritdoc cref="IServiceRegistrar.PerRequest(Type, Type, AppendValueMode?)"/>
-   public static IServiceRegistrar SingletonIfMissing(this IServiceRegistrar registrar, Type serviceType, Type concreteType)
-   {
-      if (!registrar.IsRegistered(serviceType))
-         registrar.Singleton(serviceType, concreteType);
-
-      return registrar;
-   }
-
    /// <summary>
    /// Registers the given <paramref name="concreteType"/> as itself, if it has not
    /// been registered already, where a single instance will be created when <paramref name="concreteType"/>
    /// is requested, and then cached and reused for any following requests.
    /// </summary>
-   /// <inheritdoc cref="SingletonIfMissing(IServiceRegistrar, Type, Type)"/>
-   public static IServiceRegistrar SingletonIfMissing(this IServiceRegistrar registrar, Type concreteType) => SingletonIfMissing(registrar, concreteType, concreteType);
+   /// <inheritdoc cref="IServiceRegistrar.SingletonIfMissing(Type, Type)"/>
+   public static IServiceRegistrar SingletonIfMissing(this IServiceRegistrar registrar, Type concreteType)
+      => registrar.SingletonIfMissing(concreteType, concreteType);
 
    /// <summary>
    /// Registers the <typeparamref name="TConcrete"/> type as the <typeparamref name="TService"/> type, if it has not
@@ -200,7 +169,7 @@ public static class ServiceRegistrarExtensions
    public static IServiceRegistrar SingletonIfMissing<TService, TConcrete>(this IServiceRegistrar registrar)
       where TService : notnull
       where TConcrete : notnull, TService
-      => SingletonIfMissing(registrar, typeof(TService), typeof(TConcrete));
+      => registrar.SingletonIfMissing(typeof(TService), typeof(TConcrete));
 
    /// <summary>
    /// Registers the <typeparamref name="TConcrete"/> as itself, if it has not
@@ -210,6 +179,6 @@ public static class ServiceRegistrarExtensions
    /// <inheritdoc cref="Singleton{TConcrete}(IServiceRegistrar, AppendValueMode?)"/>
    public static IServiceRegistrar SingletonIfMissing<TConcrete>(this IServiceRegistrar registrar)
       where TConcrete : notnull
-      => SingletonIfMissing(registrar, typeof(TConcrete), typeof(TConcrete));
+      => registrar.SingletonIfMissing(typeof(TConcrete), typeof(TConcrete));
    #endregion
 }

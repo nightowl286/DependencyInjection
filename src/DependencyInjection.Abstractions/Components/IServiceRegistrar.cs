@@ -26,7 +26,7 @@ public interface IServiceRegistrar : IServiceRegistrationChecker
    /// <summary>Attempts to unlock this registrar with the given <paramref name="key"/>.</summary>
    /// <param name="key">The key to try and use.</param>
    /// <returns><see langword="true"/> if unlocking was successful, <see langword="false"/> otherwise.</returns>
-   bool TryUnlock(ReferenceKey key);
+   UnlockResult TryUnlock(ReferenceKey key);
 
    /// <summary>
    /// Registers the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>,
@@ -42,12 +42,31 @@ public interface IServiceRegistrar : IServiceRegistrationChecker
    IServiceRegistrar PerRequest(Type serviceType, Type concreteType, AppendValueMode? mode = null);
 
    /// <summary>
+   /// Tries to register the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>, if it has not
+   /// been registered already, where a new instance will be created each time <paramref name="serviceType"/> is requested.
+   /// </summary>
+   /// <param name="serviceType">The type that can be used to retrieve an instance of the given <paramref name="concreteType"/>.</param>
+   /// <param name="concreteType">The type of the instance that will be created.</param>
+   /// <returns>The current instance of the <see cref="IServiceRegistrar"/>, following the builder pattern.</returns>
+   IServiceRegistrar PerRequestIfMissing(Type serviceType, Type concreteType);
+
+   /// <summary>
    /// Registers the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>,
    /// where a single instance will be created when <paramref name="serviceType"/> is requested,
    /// and then cached and reused for any following requests.
    /// </summary>
    /// <inheritdoc cref="PerRequest(Type, Type, AppendValueMode?)"/>
    IServiceRegistrar Singleton(Type serviceType, Type concreteType, AppendValueMode? mode = null);
+
+   /// <summary>
+   /// Registers the given <paramref name="concreteType"/> as the given <paramref name="serviceType"/>, if it has not
+   /// been registered already, where a single instance will be created when <paramref name="serviceType"/>
+   /// is requested, and then cached and reused for any following requests.
+   /// </summary>
+   /// <param name="serviceType">The type that can be used to retrieve an instance of the given <paramref name="concreteType"/>.</param>
+   /// <param name="concreteType">The type of the instance that will be created.</param>
+   /// <inheritdoc cref="IServiceRegistrar.PerRequest(Type, Type, AppendValueMode?)"/>
+   IServiceRegistrar SingletonIfMissing(Type serviceType, Type concreteType);
 
    /// <summary>
    /// Registers the given <paramref name="instance"/> as the given <paramref name="serviceType"/>, where the
